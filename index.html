@@ -1,0 +1,3990 @@
+```html
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width,
+      initial-scale=1,
+      maximum-scale=1,
+      user-scalable=no,
+      viewport-fit=cover">
+
+<meta name="theme-color" content="#02050a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Snake Evolution">
+
+<title>Snake Evolution</title>
+
+<style>
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    -webkit-tap-highlight-color:transparent;
+    user-select:none;
+    -webkit-user-select:none;
+}
+
+html,
+body{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#02050a;
+    touch-action:none;
+    overscroll-behavior:none;
+    font-family:-apple-system,
+                BlinkMacSystemFont,
+                "SF Pro Display",
+                Arial,
+                sans-serif;
+}
+
+body{
+    position:fixed;
+    inset:0;
+}
+
+canvas{
+    position:fixed;
+    inset:0;
+    width:100%;
+    height:100%;
+    display:block;
+}
+
+/* =========================
+   TOP HUD
+========================= */
+
+#hud{
+
+    position:fixed;
+
+    top:
+        calc(
+            env(safe-area-inset-top) + 10px
+        );
+
+    left:
+        calc(
+            env(safe-area-inset-left) + 10px
+        );
+
+    right:
+        calc(
+            env(safe-area-inset-right) + 10px
+        );
+
+    z-index:20;
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    pointer-events:none;
+}
+
+.hudLeft,
+.hudRight{
+    display:flex;
+    gap:6px;
+    align-items:center;
+}
+
+.stat{
+
+    min-width:58px;
+
+    padding:7px 9px;
+
+    border-radius:12px;
+
+    background:
+        rgba(3,12,21,.72);
+
+    border:
+        1px solid
+        rgba(0,255,255,.18);
+
+    backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);
+
+    box-shadow:
+        0 5px 25px
+        rgba(0,0,0,.25);
+}
+
+.stat small{
+
+    display:block;
+
+    font-size:8px;
+
+    color:#6d8290;
+
+    letter-spacing:1px;
+
+    text-transform:uppercase;
+}
+
+.stat b{
+
+    display:block;
+
+    margin-top:1px;
+
+    font-size:14px;
+
+    color:#66ffff;
+}
+
+/* =========================
+   XP
+========================= */
+
+#xpBox{
+
+    position:fixed;
+
+    left:50%;
+
+    bottom:
+        calc(
+            env(safe-area-inset-bottom) + 13px
+        );
+
+    transform:translateX(-50%);
+
+    width:min(220px,45vw);
+
+    z-index:20;
+
+    pointer-events:none;
+}
+
+#xpText{
+
+    text-align:center;
+
+    font-size:8px;
+
+    color:#637784;
+
+    margin-bottom:3px;
+}
+
+#xpBar{
+
+    height:5px;
+
+    border-radius:10px;
+
+    background:#0b151d;
+
+    overflow:hidden;
+
+    border:1px solid #17303a;
+}
+
+#xpFill{
+
+    height:100%;
+
+    width:0%;
+
+    background:
+        linear-gradient(
+            90deg,
+            #00ffff,
+            #7755ff
+        );
+
+    box-shadow:
+        0 0 10px #00ffff;
+
+    transition:width .2s;
+}
+
+/* =========================
+   ABILITY BUTTONS
+========================= */
+
+#abilities{
+
+    position:fixed;
+
+    right:
+        calc(
+            env(safe-area-inset-right) + 12px
+        );
+
+    bottom:
+        calc(
+            env(safe-area-inset-bottom) + 18px
+        );
+
+    z-index:30;
+
+    display:flex;
+
+    gap:8px;
+
+    pointer-events:auto;
+}
+
+.ability{
+
+    width:55px;
+    height:55px;
+
+    border-radius:18px;
+
+    border:1px solid
+        rgba(0,255,255,.25);
+
+    background:
+        rgba(5,15,25,.82);
+
+    color:#7d929d;
+
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+
+    font-size:18px;
+
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+
+    box-shadow:
+        0 8px 25px
+        rgba(0,0,0,.3);
+
+    transition:
+        transform .08s,
+        background .1s;
+}
+
+.ability span{
+
+    font-size:7px;
+
+    margin-top:2px;
+
+    color:#71828b;
+
+    letter-spacing:.5px;
+}
+
+.ability:active{
+
+    transform:scale(.86);
+
+    background:
+        rgba(0,255,255,.18);
+}
+
+/* =========================
+   MESSAGE
+========================= */
+
+#message{
+
+    position:fixed;
+
+    top:
+        calc(
+            env(safe-area-inset-top) + 90px
+        );
+
+    left:50%;
+
+    transform:
+        translateX(-50%)
+        translateY(-8px);
+
+    z-index:40;
+
+    font-size:16px;
+
+    font-weight:800;
+
+    color:#fff;
+
+    text-shadow:
+        0 0 15px currentColor;
+
+    opacity:0;
+
+    pointer-events:none;
+
+    white-space:nowrap;
+
+    transition:
+        opacity .2s,
+        transform .2s;
+}
+
+/* =========================
+   SCREENS
+========================= */
+
+.screen{
+
+    position:fixed;
+
+    inset:0;
+
+    z-index:100;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    padding:
+        calc(env(safe-area-inset-top) + 20px)
+        calc(env(safe-area-inset-right) + 20px)
+        calc(env(safe-area-inset-bottom) + 20px)
+        calc(env(safe-area-inset-left) + 20px);
+
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(0,255,255,.06),
+            rgba(1,4,9,.94) 65%
+        );
+
+    backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);
+}
+
+.panel{
+
+    width:min(430px,90vw);
+
+    padding:30px 22px;
+
+    text-align:center;
+
+    border-radius:25px;
+
+    border:
+        1px solid
+        rgba(0,255,255,.25);
+
+    background:
+        rgba(4,12,22,.94);
+
+    box-shadow:
+        0 25px 100px
+        rgba(0,0,0,.5),
+        0 0 50px
+        rgba(0,255,255,.05);
+}
+
+.panel h1{
+
+    font-size:
+        clamp(36px,12vw,58px);
+
+    letter-spacing:5px;
+
+    color:#65ffff;
+
+    text-shadow:
+        0 0 30px
+        rgba(0,255,255,.7);
+
+    margin-bottom:4px;
+}
+
+.subtitle{
+
+    font-size:11px;
+
+    color:#6b8490;
+
+    letter-spacing:5px;
+
+    margin-bottom:24px;
+}
+
+.panel p{
+
+    color:#71828d;
+
+    font-size:13px;
+
+    line-height:1.7;
+
+    margin-bottom:20px;
+}
+
+.mainButton{
+
+    width:100%;
+
+    height:55px;
+
+    border:0;
+
+    border-radius:16px;
+
+    color:white;
+
+    font-size:15px;
+
+    font-weight:800;
+
+    letter-spacing:1px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #00a9aa,
+            #6545ff
+        );
+
+    box-shadow:
+        0 0 25px
+        rgba(0,255,255,.15);
+
+    touch-action:manipulation;
+}
+
+.mainButton:active{
+
+    transform:scale(.97);
+}
+
+/* =========================
+   UPGRADE
+========================= */
+
+.upgrades{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:8px;
+}
+
+.upgrade{
+
+    width:100%;
+
+    padding:13px;
+
+    border-radius:14px;
+
+    border:1px solid
+        rgba(0,255,255,.15);
+
+    background:
+        rgba(10,25,38,.8);
+
+    color:white;
+
+    text-align:left;
+
+    font-size:13px;
+
+    font-weight:bold;
+}
+
+.upgrade small{
+
+    display:block;
+
+    color:#6e818b;
+
+    margin-top:3px;
+
+    font-weight:normal;
+}
+
+/* =========================
+   HIDE
+========================= */
+
+.hidden{
+    display:none !important;
+}
+
+/* =========================
+   LANDSCAPE
+========================= */
+
+@media (orientation:landscape){
+
+    #hud{
+        top:
+            calc(
+                env(safe-area-inset-top) + 8px
+            );
+    }
+
+    .stat{
+        padding:5px 8px;
+    }
+
+    .stat b{
+        font-size:12px;
+    }
+
+    #abilities{
+        bottom:
+            calc(
+                env(safe-area-inset-bottom) + 10px
+            );
+    }
+
+    .ability{
+        width:50px;
+        height:50px;
+    }
+}
+
+/* =========================
+   VERY SMALL PHONES
+========================= */
+
+@media(max-height:650px){
+
+    .panel{
+        padding:20px;
+    }
+
+    .panel h1{
+        font-size:38px;
+    }
+
+    .panel p{
+        margin-bottom:12px;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<canvas id="game"></canvas>
+
+<!-- =========================
+     HUD
+========================= -->
+
+<div id="hud">
+
+    <div class="hudLeft">
+
+        <div class="stat">
+            <small>Score</small>
+            <b id="score">0</b>
+        </div>
+
+        <div class="stat">
+            <small>Level</small>
+            <b id="level">1</b>
+        </div>
+
+        <div class="stat">
+            <small>Snake</small>
+            <b id="length">8</b>
+        </div>
+
+    </div>
+
+    <div class="hudRight">
+
+        <div class="stat">
+            <small>Combo</small>
+            <b id="combo">x1</b>
+        </div>
+
+        <div class="stat">
+            <small>Best</small>
+            <b id="best">0</b>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- =========================
+     MESSAGE
+========================= -->
+
+<div id="message"></div>
+
+<!-- =========================
+     XP
+========================= -->
+
+<div id="xpBox">
+
+    <div id="xpText">
+        XP 0 / 100
+    </div>
+
+    <div id="xpBar">
+        <div id="xpFill"></div>
+    </div>
+
+</div>
+
+<!-- =========================
+     ABILITIES
+========================= -->
+
+<div id="abilities">
+
+    <button
+        class="ability"
+        id="dashBtn"
+        ontouchstart="mobileAction('dash',event)"
+        onclick="mobileAction('dash',event)"
+    >
+        ⚡
+        <span>DASH</span>
+    </button>
+
+    <button
+        class="ability"
+        id="shieldBtn"
+        ontouchstart="mobileAction('shield',event)"
+        onclick="mobileAction('shield',event)"
+    >
+        🛡️
+        <span>SHIELD</span>
+    </button>
+
+    <button
+        class="ability"
+        id="empBtn"
+        ontouchstart="mobileAction('emp',event)"
+        onclick="mobileAction('emp',event)"
+    >
+        ◉
+        <span>EMP</span>
+    </button>
+
+</div>
+
+<!-- =========================
+     START
+========================= -->
+
+<div id="startScreen" class="screen">
+
+    <div class="panel">
+
+        <h1>SNAKE</h1>
+
+        <div class="subtitle">
+            EVOLUTION
+        </div>
+
+        <p>
+            Swipe ederek yönünü değiştir.<br>
+            Yemleri topla, rakipleri yok et<br>
+            ve arenanın en büyük yılanı ol.
+        </p>
+
+        <button
+            class="mainButton"
+            onclick="startGame()"
+        >
+            OYUNA BAŞLA
+        </button>
+
+    </div>
+
+</div>
+
+<!-- =========================
+     GAME OVER
+========================= -->
+
+<div
+    id="gameOver"
+    class="screen hidden"
+>
+
+    <div class="panel">
+
+        <h1>GAME OVER</h1>
+
+        <p id="finalScore"></p>
+
+        <button
+            class="mainButton"
+            onclick="startGame()"
+        >
+            TEKRAR OYNA
+        </button>
+
+    </div>
+
+</div>
+
+<!-- =========================
+     LEVEL UP
+========================= -->
+
+<div
+    id="upgradeScreen"
+    class="screen hidden"
+>
+
+    <div class="panel">
+
+        <h1 style="font-size:34px">
+            LEVEL UP
+        </h1>
+
+        <p>
+            Yılanını geliştir.
+        </p>
+
+        <div class="upgrades">
+
+            <button
+                class="upgrade"
+                onclick="upgrade('speed')"
+            >
+                ⚡ SPEED
+                <small>
+                    Hareket hızını artır
+                </small>
+            </button>
+
+            <button
+                class="upgrade"
+                onclick="upgrade('magnet')"
+            >
+                🧲 MAGNET
+                <small>
+                    Yem çekim menzili +1
+                </small>
+            </button>
+
+            <button
+                class="upgrade"
+                onclick="upgrade('shield')"
+            >
+                🛡️ SHIELD
+                <small>
+                    Kalkan süresini artır
+                </small>
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+/* =====================================================
+   SNAKE EVOLUTION
+   iPHONE EDITION
+===================================================== */
+
+const canvas =
+    document.getElementById("game");
+
+const ctx =
+    canvas.getContext("2d",{
+        alpha:false
+    });
+
+let W=0;
+let H=0;
+
+let DPR=1;
+
+let CELL=28;
+
+let cols=0;
+let rows=0;
+
+let snake=[];
+let enemies=[];
+
+let food=null;
+
+let obstacles=[];
+let zones=[];
+
+let particles=[];
+
+let direction={
+    x:1,
+    y:0
+};
+
+let nextDirection={
+    x:1,
+    y:0
+};
+
+let running=false;
+
+let score=0;
+let level=1;
+let xp=0;
+let combo=1;
+
+let best=
+    Number(
+        localStorage.getItem(
+            "snakeEvolutionBest"
+        ) || 0
+    );
+
+let coins=
+    Number(
+        localStorage.getItem(
+            "snakeEvolutionCoins"
+        ) || 0
+    );
+
+let speedLevel=1;
+let magnetLevel=0;
+let shieldLevel=1;
+
+let shieldTimer=0;
+let dashCooldown=0;
+let empCooldown=0;
+
+let comboTimer=0;
+
+let lastMove=0;
+let lastFrame=performance.now();
+
+let enemySpawnTimer=0;
+
+let digest=null;
+
+let audioCtx=null;
+
+
+/* =====================================================
+   AUDIO
+===================================================== */
+
+function initAudio(){
+
+    if(audioCtx) return;
+
+    try{
+
+        audioCtx=
+            new (
+                window.AudioContext ||
+                window.webkitAudioContext
+            )();
+
+    }catch(e){}
+}
+
+function sound(
+    frequency=500,
+    duration=.08,
+    type="sine",
+    volume=.035
+){
+
+    if(!audioCtx) return;
+
+    try{
+
+        if(
+            audioCtx.state==="suspended"
+        ){
+            audioCtx.resume();
+        }
+
+        const osc=
+            audioCtx.createOscillator();
+
+        const gain=
+            audioCtx.createGain();
+
+        osc.type=type;
+
+        osc.frequency.value=
+            frequency;
+
+        gain.gain.setValueAtTime(
+            volume,
+            audioCtx.currentTime
+        );
+
+        gain.gain.exponentialRampToValueAtTime(
+            .001,
+            audioCtx.currentTime+duration
+        );
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start();
+
+        osc.stop(
+            audioCtx.currentTime+
+            duration
+        );
+
+    }catch(e){}
+}
+
+
+/* =====================================================
+   HAPTIC
+===================================================== */
+
+function haptic(pattern=10){
+
+    if(
+        "vibrate" in navigator
+    ){
+
+        try{
+            navigator.vibrate(pattern);
+        }catch(e){}
+    }
+}
+
+
+/* =====================================================
+   RESIZE
+===================================================== */
+
+function resize(){
+
+    const oldCols=cols;
+    const oldRows=rows;
+
+    W=window.innerWidth;
+    H=window.innerHeight;
+
+    DPR=Math.min(
+        window.devicePixelRatio || 1,
+        2
+    );
+
+    /*
+       iPhone için daha küçük grid.
+       Daha az çizim = daha iyi pil/performance.
+    */
+
+    if(W>900){
+        CELL=30;
+    }else if(W>600){
+        CELL=27;
+    }else{
+        CELL=24;
+    }
+
+    cols=
+        Math.max(
+            20,
+            Math.floor(W/CELL)
+        );
+
+    rows=
+        Math.max(
+            14,
+            Math.floor(H/CELL)
+        );
+
+    canvas.width=
+        Math.floor(W*DPR);
+
+    canvas.height=
+        Math.floor(H*DPR);
+
+    canvas.style.width=
+        W+"px";
+
+    canvas.style.height=
+        H+"px";
+
+    ctx.setTransform(
+        DPR,
+        0,
+        0,
+        DPR,
+        0,
+        0
+    );
+
+    /*
+       Harita ilk oluşturulurken.
+    */
+
+    if(
+        oldCols!==cols ||
+        oldRows!==rows
+    ){
+
+        generateMap();
+
+        ensureFood();
+    }
+}
+
+window.addEventListener(
+    "resize",
+    resize,
+    {passive:true}
+);
+
+window.addEventListener(
+    "orientationchange",
+    ()=>{
+        setTimeout(
+            resize,
+            250
+        );
+    },
+    {passive:true}
+);
+
+
+/* =====================================================
+   MAP
+===================================================== */
+
+function generateMap(){
+
+    obstacles=[];
+    zones=[];
+
+    const cx=
+        Math.floor(cols/2);
+
+    const cy=
+        Math.floor(rows/2);
+
+    /*
+       Görsel enerji alanları.
+    */
+
+    const zoneCount=
+        Math.min(
+            7,
+            Math.max(
+                4,
+                Math.floor(cols*rows/220)
+            )
+        );
+
+    for(
+        let i=0;
+        i<zoneCount;
+        i++
+    ){
+
+        zones.push({
+
+            x:
+                Math.random()*cols,
+
+            y:
+                Math.random()*rows,
+
+            r:
+                3+
+                Math.random()*6,
+
+            phase:
+                Math.random()*
+                Math.PI*2
+
+        });
+    }
+
+    /*
+       Engeller.
+       Başlangıç alanı boş bırakılıyor.
+    */
+
+    const clusterCount=
+        Math.min(
+            12,
+            Math.max(
+                5,
+                Math.floor(
+                    cols*rows/260
+                )
+            )
+        );
+
+    for(
+        let i=0;
+        i<clusterCount;
+        i++
+    ){
+
+        let tries=0;
+
+        while(tries++<80){
+
+            const x=
+                2+
+                Math.floor(
+                    Math.random()*
+                    Math.max(
+                        1,
+                        cols-5
+                    )
+                );
+
+            const y=
+                2+
+                Math.floor(
+                    Math.random()*
+                    Math.max(
+                        1,
+                        rows-5
+                    )
+                );
+
+            if(
+                Math.hypot(
+                    x-cx,
+                    y-cy
+                )<7
+            ){
+                continue;
+            }
+
+            const width=
+                1+
+                Math.floor(
+                    Math.random()*3
+                );
+
+            const height=
+                1+
+                Math.floor(
+                    Math.random()*2
+                );
+
+            for(
+                let xx=0;
+                xx<width;
+                xx++
+            ){
+
+                for(
+                    let yy=0;
+                    yy<height;
+                    yy++
+                ){
+
+                    const ox=x+xx;
+                    const oy=y+yy;
+
+                    if(
+                        isInside(
+                            ox,
+                            oy
+                        ) &&
+                        Math.hypot(
+                            ox-cx,
+                            oy-cy
+                        )>6
+                    ){
+
+                        obstacles.push({
+                            x:ox,
+                            y:oy,
+                            phase:
+                                Math.random()*
+                                Math.PI*2
+                        });
+                    }
+                }
+            }
+
+            break;
+        }
+    }
+}
+
+function isInside(x,y){
+
+    return (
+        x>=0 &&
+        y>=0 &&
+        x<cols &&
+        y<rows
+    );
+}
+
+function obstacleAt(x,y){
+
+    return obstacles.some(
+        o=>
+            o.x===x &&
+            o.y===y
+    );
+}
+
+function cellOccupiedBySnake(x,y){
+
+    return snake.some(
+        s=>
+            s.x===x &&
+            s.y===y
+    );
+}
+
+function cellOccupiedByEnemy(x,y){
+
+    return enemies.some(
+        e=>
+            e.body.some(
+                s=>
+                    s.x===x &&
+                    s.y===y
+            )
+    );
+}
+
+
+/* =====================================================
+   FOOD
+===================================================== */
+
+function findFoodCell(){
+
+    /*
+       Random arama.
+    */
+
+    for(
+        let attempt=0;
+        attempt<250;
+        attempt++
+    ){
+
+        const x=
+            1+
+            Math.floor(
+                Math.random()*
+                Math.max(
+                    1,
+                    cols-2
+                )
+            );
+
+        const y=
+            1+
+            Math.floor(
+                Math.random()*
+                Math.max(
+                    1,
+                    rows-2
+                )
+            );
+
+        if(obstacleAt(x,y))
+            continue;
+
+        if(cellOccupiedBySnake(x,y))
+            continue;
+
+        if(cellOccupiedByEnemy(x,y))
+            continue;
+
+        return {x,y};
+    }
+
+    /*
+       Tüm haritayı tara.
+    */
+
+    for(
+        let y=1;
+        y<rows-1;
+        y++
+    ){
+
+        for(
+            let x=1;
+            x<cols-1;
+            x++
+        ){
+
+            if(obstacleAt(x,y))
+                continue;
+
+            if(cellOccupiedBySnake(x,y))
+                continue;
+
+            if(cellOccupiedByEnemy(x,y))
+                continue;
+
+            return {x,y};
+        }
+    }
+
+    /*
+       Harita tamamen dolduysa
+       engellerden birini kaldır.
+    */
+
+    if(obstacles.length){
+
+        obstacles.pop();
+
+        return findFoodCell();
+    }
+
+    /*
+       Son güvenli fallback.
+    */
+
+    return {
+
+        x:
+            Math.max(
+                1,
+                Math.min(
+                    cols-2,
+                    Math.floor(cols/2)+3
+                )
+            ),
+
+        y:
+            Math.max(
+                1,
+                Math.min(
+                    rows-2,
+                    Math.floor(rows/2)
+                )
+            )
+    };
+}
+
+function spawnFood(){
+
+    const pos=
+        findFoodCell();
+
+    food={
+
+        x:pos.x,
+
+        y:pos.y,
+
+        phase:
+            Math.random()*
+            Math.PI*2
+    };
+}
+
+function ensureFood(){
+
+    if(!food){
+        spawnFood();
+    }
+}
+
+
+/* =====================================================
+   PLAYER
+===================================================== */
+
+function createSnake(){
+
+    const cx=
+        Math.floor(cols/2);
+
+    const cy=
+        Math.floor(rows/2);
+
+    snake=[];
+
+    for(
+        let i=0;
+        i<8;
+        i++
+    ){
+
+        snake.push({
+
+            x:cx-i,
+
+            y:cy
+
+        });
+    }
+
+    direction={
+        x:1,
+        y:0
+    };
+
+    nextDirection={
+        x:1,
+        y:0
+    };
+}
+
+function setDirection(x,y){
+
+    if(
+        x===0 &&
+        y===0
+    ){
+        return;
+    }
+
+    /*
+       180 derece dönüş yok.
+    */
+
+    if(
+        x===-direction.x &&
+        y===-direction.y
+    ){
+        return;
+    }
+
+    /*
+       Aynı yöne tekrar dokunmayı engelle.
+    */
+
+    nextDirection={
+        x,
+        y
+    };
+}
+
+
+/* =====================================================
+   PLAYER MOVE
+===================================================== */
+
+function moveSnake(){
+
+    direction=
+        nextDirection;
+
+    const head=
+        snake[0];
+
+    const nx=
+        head.x+
+        direction.x;
+
+    const ny=
+        head.y+
+        direction.y;
+
+    /*
+       Sınır.
+    */
+
+    if(
+        !isInside(nx,ny)
+    ){
+
+        if(shieldTimer>0){
+
+            shieldTimer=0;
+
+            haptic(30);
+
+            showMessage(
+                "🛡️ SHIELD"
+            );
+
+        }else{
+
+            gameOver();
+
+            return;
+        }
+    }
+
+    if(!running)
+        return;
+
+    /*
+       Harita engeli.
+    */
+
+    if(
+        obstacleAt(nx,ny)
+    ){
+
+        if(shieldTimer>0){
+
+            shieldTimer=0;
+
+            haptic(35);
+
+            createExplosion(
+                nx*CELL+CELL/2,
+                ny*CELL+CELL/2,
+                "#7c5cff",
+                18
+            );
+
+            showMessage(
+                "SHIELD BLOCKED"
+            );
+
+        }else{
+
+            gameOver();
+
+            return;
+        }
+    }
+
+    if(!running)
+        return;
+
+    /*
+       Kendi gövdesi.
+    */
+
+    if(
+        snake.some(
+            (s,i)=>
+                i>0 &&
+                s.x===nx &&
+                s.y===ny
+        )
+    ){
+
+        if(shieldTimer>0){
+
+            shieldTimer=0;
+
+            showMessage(
+                "SHIELD BLOCKED"
+            );
+
+        }else{
+
+            gameOver();
+
+            return;
+        }
+    }
+
+    if(!running)
+        return;
+
+    snake.unshift({
+        x:nx,
+        y:ny
+    });
+
+    /*
+       Yem.
+    */
+
+    if(
+        food &&
+        nx===food.x &&
+        ny===food.y
+    ){
+
+        eatFood();
+
+    }else{
+
+        snake.pop();
+    }
+
+    /*
+       Rakip kontrolü.
+    */
+
+    checkPlayerEnemyCollision();
+}
+
+
+/* =====================================================
+   EAT
+===================================================== */
+
+function eatFood(){
+
+    if(!food)
+        return;
+
+    const oldFood={
+        x:food.x,
+        y:food.y
+    };
+
+    const gained=
+        10*combo;
+
+    score+=gained;
+
+    coins++;
+
+    comboTimer=180;
+
+    combo=
+        Math.min(
+            10,
+            combo+1
+        );
+
+    gainXP(15);
+
+    startDigestPulse();
+
+    createExplosion(
+        oldFood.x*CELL+CELL/2,
+        oldFood.y*CELL+CELL/2,
+        "#00ffff",
+        14
+    );
+
+    sound(
+        650+
+        combo*35,
+        .08,
+        "sine",
+        .04
+    );
+
+    haptic(8);
+
+    /*
+       Büyü.
+    */
+
+    const tail=
+        snake[snake.length-1];
+
+    snake.push({
+        x:tail.x,
+        y:tail.y
+    });
+
+    food=null;
+
+    /*
+       Yem anında tekrar oluşuyor.
+    */
+
+    spawnFood();
+
+    updateHUD();
+}
+
+
+/* =====================================================
+   LOW RANGE MAGNET
+===================================================== */
+
+function updateMagnet(){
+
+    if(
+        !food ||
+        magnetLevel<=0 ||
+        snake.length===0
+    ){
+        return;
+    }
+
+    const head=
+        snake[0];
+
+    const dx=
+        head.x-food.x;
+
+    const dy=
+        head.y-food.y;
+
+    const dist=
+        Math.hypot(dx,dy);
+
+    /*
+       Lv1 = 2
+       Lv2 = 3
+       Lv3 = 4
+
+       Daha fazla gitmiyor.
+    */
+
+    const range=
+        Math.min(
+            4,
+            1+magnetLevel
+        );
+
+    if(
+        dist<=range &&
+        dist>1
+    ){
+
+        let nx=
+            food.x;
+
+        let ny=
+            food.y;
+
+        if(
+            Math.abs(dx)>
+            Math.abs(dy)
+        ){
+
+            nx+=
+                Math.sign(dx);
+
+        }else{
+
+            ny+=
+                Math.sign(dy);
+        }
+
+        if(
+            isInside(nx,ny) &&
+            !obstacleAt(nx,ny) &&
+            !cellOccupiedBySnake(nx,ny)
+        ){
+
+            food.x=nx;
+            food.y=ny;
+
+            sound(
+                280,
+                .025,
+                "sine",
+                .008
+            );
+        }
+    }
+}
+
+
+/* =====================================================
+   DIGEST
+===================================================== */
+
+function startDigestPulse(){
+
+    digest={
+        progress:0,
+        duration:380
+    };
+
+    sound(
+        180,
+        .1,
+        "triangle",
+        .035
+    );
+}
+
+function updateDigest(dt){
+
+    if(!digest)
+        return;
+
+    digest.progress+=dt;
+
+    if(
+        digest.progress>=
+        digest.duration
+    ){
+
+        digest=null;
+    }
+}
+
+function drawDigest(){
+
+    if(
+        !digest ||
+        snake.length<2
+    ){
+        return;
+    }
+
+    const p=
+        Math.min(
+            1,
+            digest.progress/
+            digest.duration
+        );
+
+    const index=
+        Math.floor(
+            p*
+            Math.max(
+                1,
+                snake.length-1
+            )
+        );
+
+    for(
+        let i=0;
+        i<snake.length;
+        i++
+    ){
+
+        if(
+            i<=index &&
+            i>index-3
+        ){
+
+            const s=
+                snake[i];
+
+            ctx.save();
+
+            ctx.globalAlpha=
+                1-
+                Math.abs(index-i)*.25;
+
+            ctx.shadowBlur=22;
+
+            ctx.shadowColor="#00ffff";
+
+            ctx.fillStyle="#ffffff";
+
+            ctx.beginPath();
+
+            ctx.arc(
+                s.x*CELL+CELL/2,
+                s.y*CELL+CELL/2,
+                CELL*.25,
+                0,
+                Math.PI*2
+            );
+
+            ctx.fill();
+
+            ctx.restore();
+        }
+    }
+}
+
+
+/* =====================================================
+   ENEMIES
+===================================================== */
+
+function spawnEnemy(){
+
+    if(
+        enemies.length>=5
+    ){
+        return;
+    }
+
+    for(
+        let attempt=0;
+        attempt<100;
+        attempt++
+    ){
+
+        const x=
+            2+
+            Math.floor(
+                Math.random()*
+                Math.max(
+                    1,
+                    cols-4
+                )
+            );
+
+        const y=
+            2+
+            Math.floor(
+                Math.random()*
+                Math.max(
+                    1,
+                    rows-4
+                )
+            );
+
+        if(
+            Math.hypot(
+                x-snake[0].x,
+                y-snake[0].y
+            )<11
+        ){
+            continue;
+        }
+
+        if(obstacleAt(x,y))
+            continue;
+
+        const body=[];
+
+        const len=
+            4+
+            Math.floor(
+                Math.random()*5
+            );
+
+        for(
+            let i=0;
+            i<len;
+            i++
+        ){
+
+            const sx=x-i;
+            const sy=y;
+
+            if(
+                !isInside(
+                    sx,
+                    sy
+                )
+            ){
+                break;
+            }
+
+            if(
+                obstacleAt(
+                    sx,
+                    sy
+                )
+            ){
+                break;
+            }
+
+            body.push({
+                x:sx,
+                y:sy
+            });
+        }
+
+        if(
+            body.length>=4
+        ){
+
+            enemies.push({
+
+                body,
+
+                dir:{
+                    x:
+                        Math.random()>.5
+                        ?1
+                        :-1,
+                    y:0
+                },
+
+                timer:0,
+
+                speed:
+                    470+
+                    Math.random()*220,
+
+                color:
+                    Math.random()>.5
+                    ?"#ff3d88"
+                    :"#ff791c"
+
+            });
+
+            return;
+        }
+    }
+}
+
+function moveEnemies(dt){
+
+    for(
+        let i=enemies.length-1;
+        i>=0;
+        i--
+    ){
+
+        const e=
+            enemies[i];
+
+        e.timer+=dt;
+
+        if(
+            e.timer<e.speed
+        ){
+            continue;
+        }
+
+        e.timer=0;
+
+        const head=
+            e.body[0];
+
+        /*
+           Oyuncuyu ara sıra takip et.
+        */
+
+        if(
+            Math.random()<.6
+        ){
+
+            const dx=
+                snake[0].x-
+                head.x;
+
+            const dy=
+                snake[0].y-
+                head.y;
+
+            if(
+                Math.abs(dx)>
+                Math.abs(dy)
+            ){
+
+                e.dir={
+                    x:Math.sign(dx),
+                    y:0
+                };
+
+            }else{
+
+                e.dir={
+                    x:0,
+                    y:Math.sign(dy)
+                };
+            }
+
+        }else if(
+            Math.random()<.3
+        ){
+
+            const dirs=[
+
+                {x:1,y:0},
+                {x:-1,y:0},
+                {x:0,y:1},
+                {x:0,y:-1}
+
+            ];
+
+            e.dir=
+                dirs[
+                    Math.floor(
+                        Math.random()*
+                        dirs.length
+                    )
+                ];
+        }
+
+        const nx=
+            head.x+
+            e.dir.x;
+
+        const ny=
+            head.y+
+            e.dir.y;
+
+        if(
+            !isInside(nx,ny) ||
+            obstacleAt(nx,ny) ||
+            e.body.some(
+                (s,j)=>
+                    j>0 &&
+                    s.x===nx &&
+                    s.y===ny
+            )
+        ){
+
+            const dirs=[
+
+                {x:1,y:0},
+                {x:-1,y:0},
+                {x:0,y:1},
+                {x:0,y:-1}
+
+            ];
+
+            let found=false;
+
+            for(
+                const d of dirs
+            ){
+
+                const tx=
+                    head.x+d.x;
+
+                const ty=
+                    head.y+d.y;
+
+                if(
+                    isInside(
+                        tx,
+                        ty
+                    ) &&
+                    !obstacleAt(
+                        tx,
+                        ty
+                    )
+                ){
+
+                    e.dir=d;
+
+                    found=true;
+
+                    break;
+                }
+            }
+
+            if(!found){
+
+                killEnemy(
+                    i,
+                    false
+                );
+            }
+
+            continue;
+        }
+
+        e.body.unshift({
+            x:nx,
+            y:ny
+        });
+
+        e.body.pop();
+
+        /*
+           Rakip kafası bizim
+           gövdemize çarptı.
+        */
+
+        if(
+            snake.some(
+                (s,j)=>
+                    j>0 &&
+                    s.x===nx &&
+                    s.y===ny
+            )
+        ){
+
+            killEnemy(
+                i,
+                true
+            );
+
+            continue;
+        }
+    }
+
+    /*
+       Rakipler birbirine çarparsa
+       yok olabilir.
+    */
+
+    for(
+        let a=enemies.length-1;
+        a>=0;
+        a--
+    ){
+
+        if(!enemies[a])
+            continue;
+
+        const A=
+            enemies[a].body[0];
+
+        for(
+            let b=a-1;
+            b>=0;
+            b--
+        ){
+
+            if(!enemies[b])
+                continue;
+
+            const B=
+                enemies[b].body[0];
+
+            if(
+                A.x===B.x &&
+                A.y===B.y
+            ){
+
+                killEnemy(
+                    a,
+                    false
+                );
+
+                if(enemies[b]){
+                    killEnemy(
+                        b,
+                        false
+                    );
+                }
+
+                break;
+            }
+        }
+    }
+}
+
+
+/* =====================================================
+   ENEMY COLLISION
+===================================================== */
+
+function checkPlayerEnemyCollision(){
+
+    const head=
+        snake[0];
+
+    for(
+        let i=enemies.length-1;
+        i>=0;
+        i--
+    ){
+
+        const e=
+            enemies[i];
+
+        /*
+           Oyuncunun kafası rakibin
+           gövdesine girerse oyuncu ölür.
+        */
+
+        for(
+            let j=1;
+            j<e.body.length;
+            j++
+        ){
+
+            const s=
+                e.body[j];
+
+            if(
+                head.x===s.x &&
+                head.y===s.y
+            ){
+
+                if(
+                    shieldTimer>0
+                ){
+
+                    shieldTimer=0;
+
+                    killEnemy(
+                        i,
+                        true
+                    );
+
+                }else{
+
+                    gameOver();
+                }
+
+                return;
+            }
+        }
+
+        /*
+           Kafa kafaya.
+           Oyuncu kazanır.
+        */
+
+        const eh=
+            e.body[0];
+
+        if(
+            head.x===eh.x &&
+            head.y===eh.y
+        ){
+
+            killEnemy(
+                i,
+                true
+            );
+
+            return;
+        }
+    }
+}
+
+
+/* =====================================================
+   KILL ENEMY
+===================================================== */
+
+function killEnemy(
+    index,
+    reward
+){
+
+    const e=
+        enemies[index];
+
+    if(!e)
+        return;
+
+    const h=
+        e.body[0];
+
+    createExplosion(
+        h.x*CELL+CELL/2,
+        h.y*CELL+CELL/2,
+        e.color,
+        28
+    );
+
+    sound(
+        reward?120:80,
+        .14,
+        "sawtooth",
+        .035
+    );
+
+    haptic(
+        reward
+        ?[15,20,15]
+        :20
+    );
+
+    if(reward){
+
+        const gained=
+            100+
+            e.body.length*10;
+
+        score+=gained;
+
+        coins+=5;
+
+        gainXP(30);
+
+        showMessage(
+            "⚔️ ENEMY +" +
+            gained
+        );
+
+        /*
+           Ödül olarak büyü.
+        */
+
+        const tail=
+            snake[
+                snake.length-1
+            ];
+
+        snake.push({
+            x:tail.x,
+            y:tail.y
+        });
+    }
+
+    enemies.splice(
+        index,
+        1
+    );
+
+    saveData();
+
+    updateHUD();
+}
+
+
+/* =====================================================
+   PARTICLES
+===================================================== */
+
+function createExplosion(
+    x,
+    y,
+    color,
+    count
+){
+
+    /*
+       iPhone'da particle sayısını
+       sınırlıyoruz.
+    */
+
+    count=
+        Math.min(
+            count,
+            35
+        );
+
+    for(
+        let i=0;
+        i<count;
+        i++
+    ){
+
+        const a=
+            Math.random()*
+            Math.PI*2;
+
+        const speed=
+            1+
+            Math.random()*3.5;
+
+        particles.push({
+
+            x,
+            y,
+
+            vx:
+                Math.cos(a)*
+                speed,
+
+            vy:
+                Math.sin(a)*
+                speed,
+
+            life:1,
+
+            size:
+                1.5+
+                Math.random()*3.5,
+
+            color
+
+        });
+    }
+}
+
+function updateParticles(){
+
+    /*
+       iPhone memory/performance
+       güvenliği.
+    */
+
+    if(
+        particles.length>300
+    ){
+
+        particles.splice(
+            0,
+            particles.length-300
+        );
+    }
+
+    for(
+        let i=particles.length-1;
+        i>=0;
+        i--
+    ){
+
+        const p=
+            particles[i];
+
+        p.x+=p.vx;
+        p.y+=p.vy;
+
+        p.vx*=.97;
+        p.vy*=.97;
+
+        p.life-=.035;
+
+        if(
+            p.life<=0
+        ){
+
+            particles.splice(
+                i,
+                1
+            );
+        }
+    }
+}
+
+function drawParticles(){
+
+    for(
+        const p of particles
+    ){
+
+        ctx.save();
+
+        ctx.globalAlpha=
+            p.life;
+
+        ctx.fillStyle=
+            p.color;
+
+        ctx.shadowBlur=10;
+
+        ctx.shadowColor=
+            p.color;
+
+        ctx.beginPath();
+
+        ctx.arc(
+            p.x,
+            p.y,
+            p.size,
+            0,
+            Math.PI*2
+        );
+
+        ctx.fill();
+
+        ctx.restore();
+    }
+}
+
+
+/* =====================================================
+   DRAW MAP
+===================================================== */
+
+function drawMap(time){
+
+    ctx.fillStyle="#02050a";
+
+    ctx.fillRect(
+        0,
+        0,
+        W,
+        H
+    );
+
+    /*
+       Grid
+    */
+
+    ctx.strokeStyle=
+        "rgba(0,180,210,.045)";
+
+    ctx.lineWidth=1;
+
+    for(
+        let x=0;
+        x<=cols;
+        x++
+    ){
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            x*CELL,
+            0
+        );
+
+        ctx.lineTo(
+            x*CELL,
+            H
+        );
+
+        ctx.stroke();
+    }
+
+    for(
+        let y=0;
+        y<=rows;
+        y++
+    ){
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            0,
+            y*CELL
+        );
+
+        ctx.lineTo(
+            W,
+            y*CELL
+        );
+
+        ctx.stroke();
+    }
+
+    /*
+       Enerji bölgeleri.
+    */
+
+    for(
+        const z of zones
+    ){
+
+        const px=
+            z.x*CELL;
+
+        const py=
+            z.y*CELL;
+
+        const radius=
+            z.r*CELL;
+
+        const alpha=
+            .035+
+            Math.sin(
+                time*.001+
+                z.phase
+            )*.012;
+
+        const grad=
+            ctx.createRadialGradient(
+                px,
+                py,
+                0,
+                px,
+                py,
+                radius
+            );
+
+        grad.addColorStop(
+            0,
+            `rgba(
+                0,
+                255,
+                255,
+                ${alpha}
+            )`
+        );
+
+        grad.addColorStop(
+            1,
+            "rgba(0,255,255,0)"
+        );
+
+        ctx.fillStyle=grad;
+
+        ctx.beginPath();
+
+        ctx.arc(
+            px,
+            py,
+            radius,
+            0,
+            Math.PI*2
+        );
+
+        ctx.fill();
+    }
+
+    /*
+       Engeller.
+    */
+
+    for(
+        const o of obstacles
+    ){
+
+        const px=
+            o.x*CELL;
+
+        const py=
+            o.y*CELL;
+
+        const pulse=
+            .45+
+            Math.sin(
+                time*.003+
+                o.phase
+            )*.12;
+
+        ctx.save();
+
+        ctx.shadowBlur=10;
+
+        ctx.shadowColor=
+            "rgba(100,70,255,.35)";
+
+        ctx.fillStyle=
+            "rgba(11,17,31,.96)";
+
+        ctx.fillRect(
+            px+3,
+            py+3,
+            CELL-6,
+            CELL-6
+        );
+
+        ctx.strokeStyle=
+            `rgba(
+                110,
+                80,
+                255,
+                ${pulse}
+            )`;
+
+        ctx.strokeRect(
+            px+4,
+            py+4,
+            CELL-8,
+            CELL-8
+        );
+
+        ctx.restore();
+    }
+
+    /*
+       Arena sınırı.
+    */
+
+    ctx.strokeStyle=
+        "rgba(0,255,255,.25)";
+
+    ctx.lineWidth=2;
+
+    ctx.strokeRect(
+        2,
+        2,
+        W-4,
+        H-4
+    );
+}
+
+
+/* =====================================================
+   DRAW FOOD
+===================================================== */
+
+function drawFood(time){
+
+    if(!food)
+        return;
+
+    const x=
+        food.x*CELL+
+        CELL/2;
+
+    const y=
+        food.y*CELL+
+        CELL/2;
+
+    const pulse=
+        1+
+        Math.sin(
+            time*.008+
+            food.phase
+        )*.16;
+
+    ctx.save();
+
+    ctx.shadowBlur=22;
+
+    ctx.shadowColor=
+        "#00ffff";
+
+    ctx.fillStyle=
+        "#73ffff";
+
+    ctx.beginPath();
+
+    ctx.arc(
+        x,
+        y,
+        CELL*.21*pulse,
+        0,
+        Math.PI*2
+    );
+
+    ctx.fill();
+
+    ctx.strokeStyle=
+        "rgba(0,255,255,.45)";
+
+    ctx.lineWidth=1.5;
+
+    ctx.beginPath();
+
+    ctx.arc(
+        x,
+        y,
+        CELL*.37*pulse,
+        0,
+        Math.PI*2
+    );
+
+    ctx.stroke();
+
+    ctx.restore();
+}
+
+
+/* =====================================================
+   DRAW SNAKE
+===================================================== */
+
+function drawSnake(){
+
+    for(
+        let i=snake.length-1;
+        i>=0;
+        i--
+    ){
+
+        const s=
+            snake[i];
+
+        const x=
+            s.x*CELL+
+            CELL/2;
+
+        const y=
+            s.y*CELL+
+            CELL/2;
+
+        ctx.save();
+
+        ctx.shadowBlur=
+            i===0
+            ?22
+            :10;
+
+        ctx.shadowColor=
+            "#00ffff";
+
+        ctx.fillStyle=
+            i===0
+            ?"rgba(245,255,255,.98)"
+            :"rgba(35,205,230,.94)";
+
+        ctx.beginPath();
+
+        ctx.roundRect(
+            x-CELL*.37,
+            y-CELL*.37,
+            CELL*.74,
+            CELL*.74,
+            7
+        );
+
+        ctx.fill();
+
+        ctx.restore();
+    }
+
+    /*
+       Gözler.
+    */
+
+    const h=
+        snake[0];
+
+    const hx=
+        h.x*CELL+
+        CELL/2;
+
+    const hy=
+        h.y*CELL+
+        CELL/2;
+
+    ctx.fillStyle="#071016";
+
+    const ox=5;
+    const oy=5;
+
+    ctx.beginPath();
+
+    ctx.arc(
+        hx-ox,
+        hy-oy,
+        2.5,
+        0,
+        Math.PI*2
+    );
+
+    ctx.fill();
+
+    ctx.beginPath();
+
+    ctx.arc(
+        hx+ox,
+        hy-oy,
+        2.5,
+        0,
+        Math.PI*2
+    );
+
+    ctx.fill();
+}
+
+
+/* =====================================================
+   DRAW ENEMIES
+===================================================== */
+
+function drawEnemies(){
+
+    for(
+        const e of enemies
+    ){
+
+        for(
+            let i=e.body.length-1;
+            i>=0;
+            i--
+        ){
+
+            const s=
+                e.body[i];
+
+            const x=
+                s.x*CELL+
+                CELL/2;
+
+            const y=
+                s.y*CELL+
+                CELL/2;
+
+            ctx.save();
+
+            ctx.globalAlpha=
+                .5+
+                .5*
+                (
+                    1-
+                    i/e.body.length
+                );
+
+            ctx.fillStyle=
+                e.color;
+
+            ctx.shadowBlur=13;
+
+            ctx.shadowColor=
+                e.color;
+
+            ctx.beginPath();
+
+            ctx.arc(
+                x,
+                y,
+                CELL*.31,
+                0,
+                Math.PI*2
+            );
+
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        /*
+           Rakip göz.
+        */
+
+        const h=
+            e.body[0];
+
+        ctx.fillStyle="#fff";
+
+        ctx.beginPath();
+
+        ctx.arc(
+            h.x*CELL+
+            CELL/2,
+            h.y*CELL+
+            CELL/2,
+            3,
+            0,
+            Math.PI*2
+        );
+
+        ctx.fill();
+    }
+}
+
+
+/* =====================================================
+   SHIELD
+===================================================== */
+
+function drawShield(){
+
+    if(
+        shieldTimer<=0 ||
+        !snake.length
+    ){
+        return;
+    }
+
+    const h=
+        snake[0];
+
+    const x=
+        h.x*CELL+
+        CELL/2;
+
+    const y=
+        h.y*CELL+
+        CELL/2;
+
+    const pulse=
+        1+
+        Math.sin(
+            performance.now()*.01
+        )*.08;
+
+    ctx.save();
+
+    ctx.strokeStyle=
+        "rgba(0,255,255,.7)";
+
+    ctx.shadowBlur=20;
+
+    ctx.shadowColor=
+        "#00ffff";
+
+    ctx.lineWidth=2;
+
+    ctx.beginPath();
+
+    ctx.arc(
+        x,
+        y,
+        CELL*.7*pulse,
+        0,
+        Math.PI*2
+    );
+
+    ctx.stroke();
+
+    ctx.restore();
+}
+
+
+/* =====================================================
+   XP
+===================================================== */
+
+function gainXP(amount){
+
+    xp+=amount;
+
+    if(
+        xp>=100
+    ){
+
+        xp-=100;
+
+        level++;
+
+        updateHUD();
+
+        running=false;
+
+        haptic(
+            [20,30,20]
+        );
+
+        sound(
+            800,
+            .2,
+            "triangle",
+            .05
+        );
+
+        document
+            .getElementById(
+                "upgradeScreen"
+            )
+            .classList.remove(
+                "hidden"
+            );
+    }
+}
+
+
+/* =====================================================
+   UPGRADE
+===================================================== */
+
+function upgrade(type){
+
+    if(
+        type==="speed"
+    ){
+
+        speedLevel++;
+    }
+
+    if(
+        type==="magnet"
+    ){
+
+        magnetLevel=
+            Math.min(
+                3,
+                magnetLevel+1
+            );
+    }
+
+    if(
+        type==="shield"
+    ){
+
+        shieldLevel++;
+    }
+
+    document
+        .getElementById(
+            "upgradeScreen"
+        )
+        .classList.add(
+            "hidden"
+        );
+
+    running=true;
+
+    lastMove=
+        performance.now();
+
+    sound(
+        550,
+        .12,
+        "triangle",
+        .035
+    );
+
+    updateHUD();
+}
+
+
+/* =====================================================
+   ABILITIES
+===================================================== */
+
+function dash(){
+
+    if(
+        !running ||
+        dashCooldown>0
+    ){
+        return;
+    }
+
+    dashCooldown=1200;
+
+    haptic(
+        [15,10,15]
+    );
+
+    sound(
+        120,
+        .12,
+        "sawtooth",
+        .035
+    );
+
+    for(
+        let i=0;
+        i<3;
+        i++
+    ){
+
+        const h=
+            snake[0];
+
+        const nx=
+            h.x+
+            direction.x;
+
+        const ny=
+            h.y+
+            direction.y;
+
+        if(
+            !isInside(nx,ny) ||
+            obstacleAt(nx,ny)
+        ){
+            break;
+        }
+
+        snake.unshift({
+            x:nx,
+            y:ny
+        });
+
+        if(
+            food &&
+            nx===food.x &&
+            ny===food.y
+        ){
+
+            eatFood();
+
+        }else{
+
+            snake.pop();
+        }
+    }
+
+    createExplosion(
+        snake[0].x*CELL+
+        CELL/2,
+        snake[0].y*CELL+
+        CELL/2,
+        "#ffffff",
+        18
+    );
+}
+
+function emp(){
+
+    if(
+        !running ||
+        empCooldown>0
+    ){
+        return;
+    }
+
+    empCooldown=4000;
+
+    haptic(
+        [20,20,20]
+    );
+
+    sound(
+        70,
+        .25,
+        "sawtooth",
+        .035
+    );
+
+    for(
+        const e of enemies
+    ){
+
+        const h=
+            e.body[0];
+
+        const d=
+            Math.hypot(
+                h.x-snake[0].x,
+                h.y-snake[0].y
+            );
+
+        if(
+            d<9
+        ){
+
+            e.timer+=1300;
+
+            createExplosion(
+                h.x*CELL+
+                CELL/2,
+                h.y*CELL+
+                CELL/2,
+                "#7c5cff",
+                15
+            );
+        }
+    }
+
+    showMessage(
+        "◉ EMP"
+    );
+}
+
+function activateShield(){
+
+    if(
+        !running ||
+        shieldTimer>0
+    ){
+        return;
+    }
+
+    shieldTimer=
+        3000*
+        shieldLevel;
+
+    haptic(20);
+
+    sound(
+        400,
+        .15,
+        "sine",
+        .035
+    );
+
+    showMessage(
+        "🛡️ SHIELD"
+    );
+}
+
+function mobileAction(
+    action,
+    event
+){
+
+    if(event){
+        event.preventDefault();
+    }
+
+    initAudio();
+
+    if(
+        action==="dash"
+    ){
+        dash();
+    }
+
+    if(
+        action==="shield"
+    ){
+        activateShield();
+    }
+
+    if(
+        action==="emp"
+    ){
+        emp();
+    }
+}
+
+
+/* =====================================================
+   TIMERS
+===================================================== */
+
+function updateTimers(dt){
+
+    if(
+        dashCooldown>0
+    ){
+        dashCooldown-=dt;
+    }
+
+    if(
+        empCooldown>0
+    ){
+        empCooldown-=dt;
+    }
+
+    if(
+        shieldTimer>0
+    ){
+        shieldTimer-=dt;
+    }
+
+    if(
+        comboTimer>0
+    ){
+
+        comboTimer-=dt;
+
+        if(
+            comboTimer<=0
+        ){
+
+            combo=1;
+
+            updateHUD();
+        }
+    }
+
+    updateMagnet();
+
+    updateDigest(dt);
+
+    ensureFood();
+
+    enemySpawnTimer+=dt;
+
+    if(
+        enemySpawnTimer>5500
+    ){
+
+        enemySpawnTimer=0;
+
+        spawnEnemy();
+    }
+}
+
+
+/* =====================================================
+   SPEED
+===================================================== */
+
+function getSpeed(){
+
+    let speed=
+        155-
+        Math.min(
+            65,
+            speedLevel*9
+        );
+
+    /*
+       iPhone'da hızın aşırı
+       yükselmesini engelliyoruz.
+    */
+
+    return Math.max(
+        65,
+        speed
+    );
+}
+
+
+/* =====================================================
+   GAME
+===================================================== */
+
+function startGame(){
+
+    initAudio();
+
+    score=0;
+    level=1;
+    xp=0;
+    combo=1;
+
+    speedLevel=1;
+    magnetLevel=0;
+    shieldLevel=1;
+
+    shieldTimer=0;
+    dashCooldown=0;
+    empCooldown=0;
+    comboTimer=0;
+
+    enemies=[];
+    particles=[];
+
+    generateMap();
+
+    createSnake();
+
+    spawnFood();
+
+    /*
+       İlk iki rakip.
+    */
+
+    spawnEnemy();
+    spawnEnemy();
+
+    running=true;
+
+    document
+        .getElementById(
+            "startScreen"
+        )
+        .classList.add(
+            "hidden"
+        );
+
+    document
+        .getElementById(
+            "gameOver"
+        )
+        .classList.add(
+            "hidden"
+        );
+
+    document
+        .getElementById(
+            "upgradeScreen"
+        )
+        .classList.add(
+            "hidden"
+        );
+
+    lastMove=
+        performance.now();
+
+    lastFrame=
+        performance.now();
+
+    updateHUD();
+}
+
+function gameOver(){
+
+    if(!running)
+        return;
+
+    running=false;
+
+    haptic(
+        [60,40,100]
+    );
+
+    sound(
+        70,
+        .3,
+        "sawtooth",
+        .05
+    );
+
+    if(
+        score>best
+    ){
+
+        best=score;
+
+        localStorage.setItem(
+            "snakeEvolutionBest",
+            best
+        );
+    }
+
+    saveData();
+
+    document
+        .getElementById(
+            "finalScore"
+        )
+        .innerHTML=
+            `
+            Skor:
+            <b>${score}</b><br>
+            Level:
+            <b>${level}</b><br>
+            Uzunluk:
+            <b>${snake.length}</b>
+            `;
+
+    document
+        .getElementById(
+            "gameOver"
+        )
+        .classList.remove(
+            "hidden"
+        );
+
+    updateHUD();
+}
+
+
+/* =====================================================
+   SAVE
+===================================================== */
+
+function saveData(){
+
+    localStorage.setItem(
+        "snakeEvolutionBest",
+        best
+    );
+
+    localStorage.setItem(
+        "snakeEvolutionCoins",
+        coins
+    );
+}
+
+
+/* =====================================================
+   HUD
+===================================================== */
+
+function updateHUD(){
+
+    document
+        .getElementById(
+            "score"
+        )
+        .textContent=score;
+
+    document
+        .getElementById(
+            "level"
+        )
+        .textContent=level;
+
+    document
+        .getElementById(
+            "length"
+        )
+        .textContent=
+            snake.length;
+
+    document
+        .getElementById(
+            "combo"
+        )
+        .textContent=
+            "x"+combo;
+
+    document
+        .getElementById(
+            "best"
+        )
+        .textContent=best;
+
+    document
+        .getElementById(
+            "xpText"
+        )
+        .textContent=
+            "XP "+
+            xp+
+            " / 100";
+
+    document
+        .getElementById(
+            "xpFill"
+        )
+        .style.width=
+            xp+"%";
+}
+
+
+/* =====================================================
+   MESSAGE
+===================================================== */
+
+function showMessage(text){
+
+    const el=
+        document.getElementById(
+            "message"
+        );
+
+    el.textContent=text;
+
+    el.style.opacity="1";
+
+    el.style.transform=
+        "translateX(-50%) translateY(0)";
+
+    clearTimeout(
+        el._timer
+    );
+
+    el._timer=
+        setTimeout(
+            ()=>{
+                el.style.opacity="0";
+
+                el.style.transform=
+                    "translateX(-50%) translateY(-8px)";
+            },
+            850
+        );
+}
+
+
+/* =====================================================
+   SWIPE CONTROL
+===================================================== */
+
+let touchStartX=0;
+let touchStartY=0;
+
+let touchStartTime=0;
+
+document.addEventListener(
+    "touchstart",
+    e=>{
+
+        /*
+           Ability butonlarına dokunuyorsa
+           swipe başlatma.
+        */
+
+        if(
+            e.target.closest(
+                "#abilities"
+            )
+        ){
+            return;
+        }
+
+        const t=
+            e.changedTouches[0];
+
+        touchStartX=t.clientX;
+        touchStartY=t.clientY;
+
+        touchStartTime=
+            performance.now();
+
+    },
+    {
+        passive:false
+    }
+);
+
+document.addEventListener(
+    "touchend",
+    e=>{
+
+        if(
+            e.target.closest(
+                "#abilities"
+            )
+        ){
+            return;
+        }
+
+        const t=
+            e.changedTouches[0];
+
+        const dx=
+            t.clientX-
+            touchStartX;
+
+        const dy=
+            t.clientY-
+            touchStartY;
+
+        const distance=
+            Math.hypot(
+                dx,
+                dy
+            );
+
+        const elapsed=
+            performance.now()-
+            touchStartTime;
+
+        /*
+           Küçük dokunuşları
+           yön değişimi sayma.
+        */
+
+        if(
+            distance<25 ||
+            elapsed>500
+        ){
+            return;
+        }
+
+        if(
+            Math.abs(dx)>
+            Math.abs(dy)
+        ){
+
+            setDirection(
+                dx>0?1:-1,
+                0
+            );
+
+        }else{
+
+            setDirection(
+                0,
+                dy>0?1:-1
+            );
+        }
+
+        haptic(5);
+
+    },
+    {
+        passive:false
+    }
+);
+
+
+/* =====================================================
+   PREVENT IOS GESTURES
+===================================================== */
+
+document.addEventListener(
+    "gesturestart",
+    e=>{
+        e.preventDefault();
+    },
+    {
+        passive:false
+    }
+);
+
+document.addEventListener(
+    "gesturechange",
+    e=>{
+        e.preventDefault();
+    },
+    {
+        passive:false
+    }
+);
+
+document.addEventListener(
+    "gestureend",
+    e=>{
+        e.preventDefault();
+    },
+    {
+        passive:false
+    }
+);
+
+
+/* =====================================================
+   KEYBOARD
+   Masaüstü test için de kalsın.
+===================================================== */
+
+document.addEventListener(
+    "keydown",
+    e=>{
+
+        initAudio();
+
+        if(
+            e.key==="ArrowUp" ||
+            e.key.toLowerCase()==="w"
+        ){
+
+            setDirection(
+                0,
+                -1
+            );
+        }
+
+        if(
+            e.key==="ArrowDown" ||
+            e.key.toLowerCase()==="s"
+        ){
+
+            setDirection(
+                0,
+                1
+            );
+        }
+
+        if(
+            e.key==="ArrowLeft" ||
+            e.key.toLowerCase()==="a"
+        ){
+
+            setDirection(
+                -1,
+                0
+            );
+        }
+
+        if(
+            e.key==="ArrowRight" ||
+            e.key.toLowerCase()==="d"
+        ){
+
+            setDirection(
+                1,
+                0
+            );
+        }
+
+        if(
+            e.code==="Space"
+        ){
+
+            e.preventDefault();
+
+            dash();
+        }
+
+        if(
+            e.key.toLowerCase()==="q"
+        ){
+
+            emp();
+        }
+
+        if(
+            e.key.toLowerCase()==="e"
+        ){
+
+            activateShield();
+        }
+    },
+    {
+        passive:false
+    }
+);
+
+
+/* =====================================================
+   MAIN LOOP
+===================================================== */
+
+function loop(time){
+
+    requestAnimationFrame(
+        loop
+    );
+
+    const frameDt=
+        Math.min(
+            50,
+            time-lastFrame
+        );
+
+    lastFrame=time;
+
+    if(running){
+
+        const moveDt=
+            time-lastMove;
+
+        if(
+            moveDt>=getSpeed()
+        ){
+
+            moveSnake();
+
+            if(running){
+
+                moveEnemies(
+                    moveDt
+                );
+            }
+
+            lastMove=time;
+        }
+
+        updateTimers(
+            frameDt
+        );
+    }
+
+    updateParticles();
+
+    drawMap(time);
+
+    drawFood(time);
+
+    drawEnemies();
+
+    if(snake.length){
+        drawSnake();
+    }
+
+    drawDigest();
+
+    drawShield();
+
+}
+
+resize();
+
+updateHUD();
+
+requestAnimationFrame(
+    loop
+);
+
+</script>
+
+</body>
+</html>
+```
