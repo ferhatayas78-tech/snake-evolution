@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -16,7 +15,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Snake Evolution">
 
-<title>Snake Evolution</title>
+<title>Snake Evolution - Fixed Reset & Smooth iOS</title>
 
 <style>
 
@@ -62,30 +61,14 @@ canvas{
 ========================= */
 
 #hud{
-
     position:fixed;
-
-    top:
-        calc(
-            env(safe-area-inset-top) + 10px
-        );
-
-    left:
-        calc(
-            env(safe-area-inset-left) + 10px
-        );
-
-    right:
-        calc(
-            env(safe-area-inset-right) + 10px
-        );
-
+    top: calc(env(safe-area-inset-top) + 10px);
+    left: calc(env(safe-area-inset-left) + 10px);
+    right: calc(env(safe-area-inset-right) + 10px);
     z-index:20;
-
     display:flex;
     align-items:center;
     justify-content:space-between;
-
     pointer-events:none;
 }
 
@@ -97,49 +80,28 @@ canvas{
 }
 
 .stat{
-
     min-width:58px;
-
     padding:7px 9px;
-
     border-radius:12px;
-
-    background:
-        rgba(3,12,21,.72);
-
-    border:
-        1px solid
-        rgba(0,255,255,.18);
-
+    background: rgba(3,12,21,.72);
+    border: 1px solid rgba(0,255,255,.18);
     backdrop-filter:blur(12px);
     -webkit-backdrop-filter:blur(12px);
-
-    box-shadow:
-        0 5px 25px
-        rgba(0,0,0,.25);
+    box-shadow: 0 5px 25px rgba(0,0,0,.25);
 }
 
 .stat small{
-
     display:block;
-
     font-size:8px;
-
     color:#6d8290;
-
     letter-spacing:1px;
-
     text-transform:uppercase;
 }
 
 .stat b{
-
     display:block;
-
     margin-top:1px;
-
     font-size:14px;
-
     color:#66ffff;
 }
 
@@ -148,65 +110,35 @@ canvas{
 ========================= */
 
 #xpBox{
-
     position:fixed;
-
     left:50%;
-
-    bottom:
-        calc(
-            env(safe-area-inset-bottom) + 13px
-        );
-
+    bottom: calc(env(safe-area-inset-bottom) + 13px);
     transform:translateX(-50%);
-
     width:min(220px,45vw);
-
     z-index:20;
-
     pointer-events:none;
 }
 
 #xpText{
-
     text-align:center;
-
     font-size:8px;
-
     color:#637784;
-
     margin-bottom:3px;
 }
 
 #xpBar{
-
     height:5px;
-
     border-radius:10px;
-
     background:#0b151d;
-
     overflow:hidden;
-
     border:1px solid #17303a;
 }
 
 #xpFill{
-
     height:100%;
-
     width:0%;
-
-    background:
-        linear-gradient(
-            90deg,
-            #00ffff,
-            #7755ff
-        );
-
-    box-shadow:
-        0 0 10px #00ffff;
-
+    background: linear-gradient(90deg, #00ffff, #7755ff);
+    box-shadow: 0 0 10px #00ffff;
     transition:width .2s;
 }
 
@@ -215,120 +147,81 @@ canvas{
 ========================= */
 
 #abilities{
-
     position:fixed;
-
-    right:
-        calc(
-            env(safe-area-inset-right) + 12px
-        );
-
-    bottom:
-        calc(
-            env(safe-area-inset-bottom) + 18px
-        );
-
+    right: calc(env(safe-area-inset-right) + 12px);
+    bottom: calc(env(safe-area-inset-bottom) + 18px);
     z-index:30;
-
     display:flex;
-
     gap:8px;
-
     pointer-events:auto;
 }
 
 .ability{
-
     width:55px;
     height:55px;
-
     border-radius:18px;
-
-    border:1px solid
-        rgba(0,255,255,.25);
-
-    background:
-        rgba(5,15,25,.82);
-
+    border:1px solid rgba(0,255,255,.25);
+    background: rgba(5,15,25,.82);
     color:#7d929d;
-
     display:flex;
     flex-direction:column;
     align-items:center;
     justify-content:center;
-
     font-size:18px;
-
     backdrop-filter:blur(10px);
     -webkit-backdrop-filter:blur(10px);
-
-    box-shadow:
-        0 8px 25px
-        rgba(0,0,0,.3);
-
-    transition:
-        transform .08s,
-        background .1s;
+    box-shadow: 0 8px 25px rgba(0,0,0,.3);
+    transition: transform .08s, background .1s;
 }
 
 .ability span{
-
     font-size:7px;
-
     margin-top:2px;
-
     color:#71828b;
-
     letter-spacing:.5px;
 }
 
 .ability:active{
-
     transform:scale(.86);
-
-    background:
-        rgba(0,255,255,.18);
+    background: rgba(0,255,255,.18);
 }
 
 /* =========================
-   MESSAGE
+   MESSAGE & RISK INDICATOR
 ========================= */
 
 #message{
-
     position:fixed;
-
-    top:
-        calc(
-            env(safe-area-inset-top) + 90px
-        );
-
+    top: calc(env(safe-area-inset-top) + 90px);
     left:50%;
-
-    transform:
-        translateX(-50%)
-        translateY(-8px);
-
+    transform: translateX(-50%) translateY(-8px);
     z-index:40;
-
     font-size:16px;
-
     font-weight:800;
-
     color:#fff;
-
-    text-shadow:
-        0 0 15px currentColor;
-
+    text-shadow: 0 0 15px currentColor;
     opacity:0;
-
     pointer-events:none;
-
     white-space:nowrap;
+    transition: opacity .2s, transform .2s;
+}
 
-    transition:
-        opacity .2s,
-        transform .2s;
+#riskStatus{
+    position:fixed;
+    top: calc(env(safe-area-inset-top) + 55px);
+    left:50%;
+    transform: translateX(-50%);
+    z-index:35;
+    font-size:11px;
+    font-weight:bold;
+    letter-spacing:1.5px;
+    color:#ff3366;
+    text-shadow: 0 0 10px #ff3366;
+    background: rgba(255,0,85,0.15);
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid rgba(255,0,85,0.4);
+    display: none;
 }
 
 /* =========================
@@ -336,132 +229,69 @@ canvas{
 ========================= */
 
 .screen{
-
     position:fixed;
-
     inset:0;
-
     z-index:100;
-
     display:flex;
-
     align-items:center;
-
     justify-content:center;
-
     padding:
         calc(env(safe-area-inset-top) + 20px)
         calc(env(safe-area-inset-right) + 20px)
         calc(env(safe-area-inset-bottom) + 20px)
         calc(env(safe-area-inset-left) + 20px);
-
-    background:
-        radial-gradient(
-            circle at center,
-            rgba(0,255,255,.06),
-            rgba(1,4,9,.94) 65%
-        );
-
+    background: radial-gradient(circle at center, rgba(0,255,255,.06), rgba(1,4,9,.94) 65%);
     backdrop-filter:blur(12px);
     -webkit-backdrop-filter:blur(12px);
 }
 
 .panel{
-
     width:min(430px,90vw);
-
     padding:30px 22px;
-
     text-align:center;
-
     border-radius:25px;
-
-    border:
-        1px solid
-        rgba(0,255,255,.25);
-
-    background:
-        rgba(4,12,22,.94);
-
-    box-shadow:
-        0 25px 100px
-        rgba(0,0,0,.5),
-        0 0 50px
-        rgba(0,255,255,.05);
+    border: 1px solid rgba(0,255,255,.25);
+    background: rgba(4,12,22,.94);
+    box-shadow: 0 25px 100px rgba(0,0,0,.5), 0 0 50px rgba(0,255,255,.05);
 }
 
 .panel h1{
-
-    font-size:
-        clamp(36px,12vw,58px);
-
+    font-size: clamp(36px,12vw,58px);
     letter-spacing:5px;
-
     color:#65ffff;
-
-    text-shadow:
-        0 0 30px
-        rgba(0,255,255,.7);
-
+    text-shadow: 0 0 30px rgba(0,255,255,.7);
     margin-bottom:4px;
 }
 
 .subtitle{
-
     font-size:11px;
-
     color:#6b8490;
-
     letter-spacing:5px;
-
     margin-bottom:24px;
 }
 
 .panel p{
-
     color:#71828d;
-
     font-size:13px;
-
     line-height:1.7;
-
     margin-bottom:20px;
 }
 
 .mainButton{
-
     width:100%;
-
     height:55px;
-
     border:0;
-
     border-radius:16px;
-
     color:white;
-
     font-size:15px;
-
     font-weight:800;
-
     letter-spacing:1px;
-
-    background:
-        linear-gradient(
-            135deg,
-            #00a9aa,
-            #6545ff
-        );
-
-    box-shadow:
-        0 0 25px
-        rgba(0,255,255,.15);
-
+    background: linear-gradient(135deg, #00a9aa, #6545ff);
+    box-shadow: 0 0 25px rgba(0,255,255,.15);
     touch-action:manipulation;
 }
 
 .mainButton:active{
-
     transform:scale(.97);
 }
 
@@ -470,107 +300,32 @@ canvas{
 ========================= */
 
 .upgrades{
-
     display:flex;
-
     flex-direction:column;
-
     gap:8px;
 }
 
 .upgrade{
-
     width:100%;
-
     padding:13px;
-
     border-radius:14px;
-
-    border:1px solid
-        rgba(0,255,255,.15);
-
-    background:
-        rgba(10,25,38,.8);
-
+    border:1px solid rgba(0,255,255,.15);
+    background: rgba(10,25,38,.8);
     color:white;
-
     text-align:left;
-
     font-size:13px;
-
     font-weight:bold;
 }
 
 .upgrade small{
-
     display:block;
-
     color:#6e818b;
-
     margin-top:3px;
-
     font-weight:normal;
 }
 
-/* =========================
-   HIDE
-========================= */
-
 .hidden{
     display:none !important;
-}
-
-/* =========================
-   LANDSCAPE
-========================= */
-
-@media (orientation:landscape){
-
-    #hud{
-        top:
-            calc(
-                env(safe-area-inset-top) + 8px
-            );
-    }
-
-    .stat{
-        padding:5px 8px;
-    }
-
-    .stat b{
-        font-size:12px;
-    }
-
-    #abilities{
-        bottom:
-            calc(
-                env(safe-area-inset-bottom) + 10px
-            );
-    }
-
-    .ability{
-        width:50px;
-        height:50px;
-    }
-}
-
-/* =========================
-   VERY SMALL PHONES
-========================= */
-
-@media(max-height:650px){
-
-    .panel{
-        padding:20px;
-    }
-
-    .panel h1{
-        font-size:38px;
-    }
-
-    .panel p{
-        margin-bottom:12px;
-    }
 }
 
 </style>
@@ -580,3411 +335,787 @@ canvas{
 
 <canvas id="game"></canvas>
 
-<!-- =========================
-     HUD
-========================= -->
-
+<!-- HUD -->
 <div id="hud">
-
     <div class="hudLeft">
-
-        <div class="stat">
-            <small>Score</small>
-            <b id="score">0</b>
-        </div>
-
-        <div class="stat">
-            <small>Level</small>
-            <b id="level">1</b>
-        </div>
-
-        <div class="stat">
-            <small>Snake</small>
-            <b id="length">8</b>
-        </div>
-
+        <div class="stat"><small>Score</small><b id="score">0</b></div>
+        <div class="stat"><small>Level</small><b id="level">1</b></div>
+        <div class="stat"><small>Snake</small><b id="length">20</b></div>
     </div>
-
     <div class="hudRight">
-
-        <div class="stat">
-            <small>Combo</small>
-            <b id="combo">x1</b>
-        </div>
-
-        <div class="stat">
-            <small>Best</small>
-            <b id="best">0</b>
-        </div>
-
+        <div class="stat"><small>Combo</small><b id="combo">x1</b></div>
+        <div class="stat"><small>Best</small><b id="best">0</b></div>
     </div>
-
 </div>
 
-<!-- =========================
-     MESSAGE
-========================= -->
-
+<div id="riskStatus">⚠️ RISK ZONE (3x SCORE)</div>
 <div id="message"></div>
 
-<!-- =========================
-     XP
-========================= -->
-
+<!-- XP -->
 <div id="xpBox">
-
-    <div id="xpText">
-        XP 0 / 100
-    </div>
-
-    <div id="xpBar">
-        <div id="xpFill"></div>
-    </div>
-
+    <div id="xpText">XP 0 / 100</div>
+    <div id="xpBar"><div id="xpFill"></div></div>
 </div>
 
-<!-- =========================
-     ABILITIES
-========================= -->
-
+<!-- ABILITIES -->
 <div id="abilities">
-
-    <button
-        class="ability"
-        id="dashBtn"
-        ontouchstart="mobileAction('dash',event)"
-        onclick="mobileAction('dash',event)"
-    >
-        ⚡
-        <span>DASH</span>
-    </button>
-
-    <button
-        class="ability"
-        id="shieldBtn"
-        ontouchstart="mobileAction('shield',event)"
-        onclick="mobileAction('shield',event)"
-    >
-        🛡️
-        <span>SHIELD</span>
-    </button>
-
-    <button
-        class="ability"
-        id="empBtn"
-        ontouchstart="mobileAction('emp',event)"
-        onclick="mobileAction('emp',event)"
-    >
-        ◉
-        <span>EMP</span>
-    </button>
-
+    <button class="ability" id="dashBtn" ontouchstart="mobileAction('dash',event)" onclick="mobileAction('dash',event)">⚡<span>DASH</span></button>
+    <button class="ability" id="shieldBtn" ontouchstart="mobileAction('shield',event)" onclick="mobileAction('shield',event)">🛡️<span>SHIELD</span></button>
+    <button class="ability" id="empBtn" ontouchstart="mobileAction('emp',event)" onclick="mobileAction('emp',event)">◉<span>EMP</span></button>
 </div>
 
-<!-- =========================
-     START
-========================= -->
-
+<!-- START -->
 <div id="startScreen" class="screen">
-
     <div class="panel">
-
         <h1>SNAKE</h1>
-
-        <div class="subtitle">
-            EVOLUTION
-        </div>
-
-        <p>
-            Swipe ederek yönünü değiştir.<br>
-            Yemleri topla, rakipleri yok et<br>
-            ve arenanın en büyük yılanı ol.
-        </p>
-
-        <button
-            class="mainButton"
-            onclick="startGame()"
-        >
-            OYUNA BAŞLA
-        </button>
-
+        <div class="subtitle">EVOLUTION</div>
+        <p>Ekran kenarları öldürmez, karşıdan çıkarsın!<br>Yavaşlatılmış akıcı sürüşün tadını çıkar.</p>
+        <button class="mainButton" onclick="startGame()">OYUNA BAŞLA</button>
     </div>
-
 </div>
 
-<!-- =========================
-     GAME OVER
-========================= -->
-
-<div
-    id="gameOver"
-    class="screen hidden"
->
-
+<!-- GAME OVER -->
+<div id="gameOver" class="screen hidden">
     <div class="panel">
-
         <h1>GAME OVER</h1>
-
         <p id="finalScore"></p>
-
-        <button
-            class="mainButton"
-            onclick="startGame()"
-        >
-            TEKRAR OYNA
-        </button>
-
+        <button class="mainButton" onclick="startGame()">TEKRAR OYNA</button>
     </div>
-
 </div>
 
-<!-- =========================
-     LEVEL UP
-========================= -->
-
-<div
-    id="upgradeScreen"
-    class="screen hidden"
->
-
+<!-- LEVEL UP -->
+<div id="upgradeScreen" class="screen hidden">
     <div class="panel">
-
-        <h1 style="font-size:34px">
-            LEVEL UP
-        </h1>
-
-        <p>
-            Yılanını geliştir.
-        </p>
-
+        <h1 style="font-size:34px">LEVEL UP</h1>
+        <p>Yılanını geliştir.</p>
         <div class="upgrades">
-
-            <button
-                class="upgrade"
-                onclick="upgrade('speed')"
-            >
-                ⚡ SPEED
-                <small>
-                    Hareket hızını artır
-                </small>
-            </button>
-
-            <button
-                class="upgrade"
-                onclick="upgrade('magnet')"
-            >
-                🧲 MAGNET
-                <small>
-                    Yem çekim menzili +1
-                </small>
-            </button>
-
-            <button
-                class="upgrade"
-                onclick="upgrade('shield')"
-            >
-                🛡️ SHIELD
-                <small>
-                    Kalkan süresini artır
-                </small>
-            </button>
-
+            <button class="upgrade" onclick="upgrade('speed')">⚡ SPEED<small>Hareket ve dönüş hızını artır</small></button>
+            <button class="upgrade" onclick="upgrade('magnet')">🧲 MAGNET<small>Yem çekim menzilini artır</small></button>
+            <button class="upgrade" onclick="upgrade('shield')">🛡️ SHIELD<small>Kalkan süresini artır</small></button>
         </div>
-
     </div>
-
 </div>
 
 <script>
 
 /* =====================================================
-   SNAKE EVOLUTION
-   iPHONE EDITION
-===================================================== */
+   SNAKE EVOLUTION - FULLY FIXED RESET & iOS COMPATIBLE
+========================================================= */
 
-const canvas =
-    document.getElementById("game");
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d", { alpha: false });
 
-const ctx =
-    canvas.getContext("2d",{
-        alpha:false
-    });
+let W=0, H=0, DPR=1;
 
-let W=0;
-let H=0;
+const SNAKE_RADIUS = 12; 
+const SEGMENT_DISTANCE = 8; 
 
-let DPR=1;
+let baseSpeed = 2.0; 
+let turnSpeed = 0.055; 
 
-let CELL=28;
+let snake = [];
+let snakeLength = 25; 
+let angle = 0; 
 
-let cols=0;
-let rows=0;
+let enemies = [];
+let foods = [];
+let obstacles = [];
+let particles = [];
 
-let snake=[];
-let enemies=[];
+let running = false;
+let score = 0, level = 1, xp = 0, combo = 1;
+let inRiskZone = false;
 
-let food=null;
+let best = Number(localStorage.getItem("snakeEvolutionBest") || 0);
 
-let obstacles=[];
-let zones=[];
+let speedLevel = 1, magnetLevel = 0, shieldLevel = 1;
+let shieldTimer = 0, dashCooldown = 0, empCooldown = 0;
 
-let particles=[];
+let bossSpawnTimer = 0;
+let bossActive = false;
 
-let direction={
-    x:1,
-    y:0
-};
-
-let nextDirection={
-    x:1,
-    y:0
-};
-
-let running=false;
-
-let score=0;
-let level=1;
-let xp=0;
-let combo=1;
-
-let best=
-    Number(
-        localStorage.getItem(
-            "snakeEvolutionBest"
-        ) || 0
-    );
-
-let coins=
-    Number(
-        localStorage.getItem(
-            "snakeEvolutionCoins"
-        ) || 0
-    );
-
-let speedLevel=1;
-let magnetLevel=0;
-let shieldLevel=1;
-
-let shieldTimer=0;
-let dashCooldown=0;
-let empCooldown=0;
-
-let comboTimer=0;
-
-let lastMove=0;
-let lastFrame=performance.now();
-
-let enemySpawnTimer=0;
-
-let digest=null;
-
-let audioCtx=null;
+let audioCtx = null;
+let isPointerDown = false;
+let pointerPos = { x: 0, y: 0 };
 
 
 /* =====================================================
-   AUDIO
-===================================================== */
+   AUDIO & HAPTICS (iOS COMPATIBLE)
+========================================================= */
 
 function initAudio(){
-
     if(audioCtx) return;
-
-    try{
-
-        audioCtx=
-            new (
-                window.AudioContext ||
-                window.webkitAudioContext
-            )();
-
-    }catch(e){}
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){}
 }
 
-function sound(
-    frequency=500,
-    duration=.08,
-    type="sine",
-    volume=.035
-){
-
+function sound(frequency=500, duration=.08, type="sine", volume=.035){
     if(!audioCtx) return;
-
     try{
-
-        if(
-            audioCtx.state==="suspended"
-        ){
-            audioCtx.resume();
-        }
-
-        const osc=
-            audioCtx.createOscillator();
-
-        const gain=
-            audioCtx.createGain();
-
-        osc.type=type;
-
-        osc.frequency.value=
-            frequency;
-
-        gain.gain.setValueAtTime(
-            volume,
-            audioCtx.currentTime
-        );
-
-        gain.gain.exponentialRampToValueAtTime(
-            .001,
-            audioCtx.currentTime+duration
-        );
-
+        if(audioCtx.state==="suspended") audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.value = frequency;
+        gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(.001, audioCtx.currentTime + duration);
         osc.connect(gain);
         gain.connect(audioCtx.destination);
-
         osc.start();
-
-        osc.stop(
-            audioCtx.currentTime+
-            duration
-        );
-
+        osc.stop(audioCtx.currentTime + duration);
     }catch(e){}
 }
 
-
-/* =====================================================
-   HAPTIC
-===================================================== */
-
 function haptic(pattern=10){
-
-    if(
-        "vibrate" in navigator
-    ){
-
-        try{
-            navigator.vibrate(pattern);
-        }catch(e){}
+    if("vibrate" in navigator){
+        try{ navigator.vibrate(pattern); }catch(e){}
     }
 }
 
 
 /* =====================================================
-   RESIZE
-===================================================== */
+   RESIZE & MAP
+========================================================= */
 
 function resize(){
+    W = window.innerWidth;
+    H = window.innerHeight;
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
 
-    const oldCols=cols;
-    const oldRows=rows;
+    canvas.width = Math.floor(W * DPR);
+    canvas.height = Math.floor(H * DPR);
+    canvas.style.width = W + "px";
+    canvas.style.height = H + "px";
 
-    W=window.innerWidth;
-    H=window.innerHeight;
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
 
-    DPR=Math.min(
-        window.devicePixelRatio || 1,
-        2
-    );
-
-    /*
-       iPhone için daha küçük grid.
-       Daha az çizim = daha iyi pil/performance.
-    */
-
-    if(W>900){
-        CELL=30;
-    }else if(W>600){
-        CELL=27;
-    }else{
-        CELL=24;
-    }
-
-    cols=
-        Math.max(
-            20,
-            Math.floor(W/CELL)
-        );
-
-    rows=
-        Math.max(
-            14,
-            Math.floor(H/CELL)
-        );
-
-    canvas.width=
-        Math.floor(W*DPR);
-
-    canvas.height=
-        Math.floor(H*DPR);
-
-    canvas.style.width=
-        W+"px";
-
-    canvas.style.height=
-        H+"px";
-
-    ctx.setTransform(
-        DPR,
-        0,
-        0,
-        DPR,
-        0,
-        0
-    );
-
-    /*
-       Harita ilk oluşturulurken.
-    */
-
-    if(
-        oldCols!==cols ||
-        oldRows!==rows
-    ){
-
-        generateMap();
-
-        ensureFood();
-    }
+    if(obstacles.length === 0) generateMap();
 }
 
-window.addEventListener(
-    "resize",
-    resize,
-    {passive:true}
-);
-
-window.addEventListener(
-    "orientationchange",
-    ()=>{
-        setTimeout(
-            resize,
-            250
-        );
-    },
-    {passive:true}
-);
-
-
-/* =====================================================
-   MAP
-===================================================== */
+window.addEventListener("resize", resize, {passive:true});
 
 function generateMap(){
+    obstacles = [];
+    const count = Math.max(2, Math.floor((W * H) / 120000));
 
-    obstacles=[];
-    zones=[];
-
-    const cx=
-        Math.floor(cols/2);
-
-    const cy=
-        Math.floor(rows/2);
-
-    /*
-       Görsel enerji alanları.
-    */
-
-    const zoneCount=
-        Math.min(
-            7,
-            Math.max(
-                4,
-                Math.floor(cols*rows/220)
-            )
-        );
-
-    for(
-        let i=0;
-        i<zoneCount;
-        i++
-    ){
-
-        zones.push({
-
-            x:
-                Math.random()*cols,
-
-            y:
-                Math.random()*rows,
-
-            r:
-                3+
-                Math.random()*6,
-
-            phase:
-                Math.random()*
-                Math.PI*2
-
-        });
-    }
-
-    /*
-       Engeller.
-       Başlangıç alanı boş bırakılıyor.
-    */
-
-    const clusterCount=
-        Math.min(
-            12,
-            Math.max(
-                5,
-                Math.floor(
-                    cols*rows/260
-                )
-            )
-        );
-
-    for(
-        let i=0;
-        i<clusterCount;
-        i++
-    ){
-
-        let tries=0;
-
-        while(tries++<80){
-
-            const x=
-                2+
-                Math.floor(
-                    Math.random()*
-                    Math.max(
-                        1,
-                        cols-5
-                    )
-                );
-
-            const y=
-                2+
-                Math.floor(
-                    Math.random()*
-                    Math.max(
-                        1,
-                        rows-5
-                    )
-                );
-
-            if(
-                Math.hypot(
-                    x-cx,
-                    y-cy
-                )<7
-            ){
-                continue;
-            }
-
-            const width=
-                1+
-                Math.floor(
-                    Math.random()*3
-                );
-
-            const height=
-                1+
-                Math.floor(
-                    Math.random()*2
-                );
-
-            for(
-                let xx=0;
-                xx<width;
-                xx++
-            ){
-
-                for(
-                    let yy=0;
-                    yy<height;
-                    yy++
-                ){
-
-                    const ox=x+xx;
-                    const oy=y+yy;
-
-                    if(
-                        isInside(
-                            ox,
-                            oy
-                        ) &&
-                        Math.hypot(
-                            ox-cx,
-                            oy-cy
-                        )>6
-                    ){
-
-                        obstacles.push({
-                            x:ox,
-                            y:oy,
-                            phase:
-                                Math.random()*
-                                Math.PI*2
-                        });
-                    }
-                }
-            }
-
-            break;
+    for(let i=0; i<count; i++){
+        let ox = 80 + Math.random() * (W - 160);
+        let oy = 80 + Math.random() * (H - 160);
+        if(Math.hypot(ox - W/2, oy - H/2) > 160){
+            obstacles.push({ x: ox, y: oy, r: 10 + Math.random() * 12 });
         }
     }
 }
 
-function isInside(x,y){
 
-    return (
-        x>=0 &&
-        y>=0 &&
-        x<cols &&
-        y<rows
-    );
+/* =====================================================
+   PLAYER SNAKE
+========================================================= */
+
+function createSnake(){
+    snake = [];
+    const startX = W / 4;
+    const startY = H / 2;
+    angle = 0;
+
+    for(let i=0; i<snakeLength; i++){
+        snake.push({
+            x: startX - i * SEGMENT_DISTANCE,
+            y: startY
+        });
+    }
 }
 
-function obstacleAt(x,y){
+function updateSnake(){
+    if(!snake.length) return;
 
-    return obstacles.some(
-        o=>
-            o.x===x &&
-            o.y===y
-    );
-}
+    if(isPointerDown){
+        const head = snake[0];
+        const dx = pointerPos.x - head.x;
+        const dy = pointerPos.y - head.y;
+        
+        const targetAngle = Math.atan2(dy, dx);
 
-function cellOccupiedBySnake(x,y){
+        let diff = targetAngle - angle;
+        while (diff < -Math.PI) diff += Math.PI * 2;
+        while (diff > Math.PI) diff -= Math.PI * 2;
 
-    return snake.some(
-        s=>
-            s.x===x &&
-            s.y===y
-    );
-}
+        const currentTurnSpeed = turnSpeed + (speedLevel * 0.003);
+        angle += Math.max(-currentTurnSpeed, Math.min(currentTurnSpeed, diff));
+    }
 
-function cellOccupiedByEnemy(x,y){
+    const currentSpeed = baseSpeed + ((speedLevel - 1) * 0.25);
+    
+    let newX = snake[0].x + Math.cos(angle) * currentSpeed;
+    let newY = snake[0].y + Math.sin(angle) * currentSpeed;
 
-    return enemies.some(
-        e=>
-            e.body.some(
-                s=>
-                    s.x===x &&
-                    s.y===y
-            )
-    );
+    // --- DUVARLARDAN GEÇİŞ (SONSUZ HARİTA) ---
+    if (newX < 0) newX = W;
+    else if (newX > W) newX = 0;
+
+    if (newY < 0) newY = H;
+    else if (newY > H) newY = 0;
+
+    const newHead = { x: newX, y: newY };
+
+    // Kırmızı Bölge (Risk Zone)
+    const distToCenter = Math.hypot(newHead.x - W/2, newHead.y - H/2);
+    if(distToCenter < 120){
+        if(!inRiskZone){
+            inRiskZone = true;
+            document.getElementById("riskStatus").style.display = "block";
+        }
+    } else {
+        if(inRiskZone){
+            inRiskZone = false;
+            document.getElementById("riskStatus").style.display = "none";
+        }
+    }
+
+    // Engel Çarpışması
+    for(const obs of obstacles){
+        if(Math.hypot(newHead.x - obs.x, newHead.y - obs.y) < SNAKE_RADIUS + obs.r){
+            if(shieldTimer > 0){
+                shieldTimer = 0;
+                angle += Math.PI;
+                showMessage("🛡️ SHIELD BLOCKED");
+            } else {
+                gameOver();
+                return;
+            }
+        }
+    }
+
+    // Gövdeye Çarpma
+    for(let i = 15; i < snake.length; i++){
+        if(Math.hypot(newHead.x - snake[i].x, newHead.y - snake[i].y) < SNAKE_RADIUS){
+            if(shieldTimer > 0){
+                shieldTimer = 0;
+                showMessage("🛡️ SHIELD BLOCKED");
+            } else {
+                gameOver();
+                return;
+            }
+        }
+    }
+
+    snake.unshift(newHead);
+
+    while(snake.length > snakeLength){
+        snake.pop();
+    }
+
+    checkFoodCollision();
 }
 
 
 /* =====================================================
    FOOD
-===================================================== */
-
-function findFoodCell(){
-
-    /*
-       Random arama.
-    */
-
-    for(
-        let attempt=0;
-        attempt<250;
-        attempt++
-    ){
-
-        const x=
-            1+
-            Math.floor(
-                Math.random()*
-                Math.max(
-                    1,
-                    cols-2
-                )
-            );
-
-        const y=
-            1+
-            Math.floor(
-                Math.random()*
-                Math.max(
-                    1,
-                    rows-2
-                )
-            );
-
-        if(obstacleAt(x,y))
-            continue;
-
-        if(cellOccupiedBySnake(x,y))
-            continue;
-
-        if(cellOccupiedByEnemy(x,y))
-            continue;
-
-        return {x,y};
-    }
-
-    /*
-       Tüm haritayı tara.
-    */
-
-    for(
-        let y=1;
-        y<rows-1;
-        y++
-    ){
-
-        for(
-            let x=1;
-            x<cols-1;
-            x++
-        ){
-
-            if(obstacleAt(x,y))
-                continue;
-
-            if(cellOccupiedBySnake(x,y))
-                continue;
-
-            if(cellOccupiedByEnemy(x,y))
-                continue;
-
-            return {x,y};
-        }
-    }
-
-    /*
-       Harita tamamen dolduysa
-       engellerden birini kaldır.
-    */
-
-    if(obstacles.length){
-
-        obstacles.pop();
-
-        return findFoodCell();
-    }
-
-    /*
-       Son güvenli fallback.
-    */
-
-    return {
-
-        x:
-            Math.max(
-                1,
-                Math.min(
-                    cols-2,
-                    Math.floor(cols/2)+3
-                )
-            ),
-
-        y:
-            Math.max(
-                1,
-                Math.min(
-                    rows-2,
-                    Math.floor(rows/2)
-                )
-            )
-    };
-}
+========================================================= */
 
 function spawnFood(){
-
-    const pos=
-        findFoodCell();
-
-    food={
-
-        x:pos.x,
-
-        y:pos.y,
-
-        phase:
-            Math.random()*
-            Math.PI*2
-    };
-}
-
-function ensureFood(){
-
-    if(!food){
-        spawnFood();
-    }
-}
-
-
-/* =====================================================
-   PLAYER
-===================================================== */
-
-function createSnake(){
-
-    const cx=
-        Math.floor(cols/2);
-
-    const cy=
-        Math.floor(rows/2);
-
-    snake=[];
-
-    for(
-        let i=0;
-        i<8;
-        i++
-    ){
-
-        snake.push({
-
-            x:cx-i,
-
-            y:cy
-
-        });
-    }
-
-    direction={
-        x:1,
-        y:0
-    };
-
-    nextDirection={
-        x:1,
-        y:0
-    };
-}
-
-function setDirection(x,y){
-
-    if(
-        x===0 &&
-        y===0
-    ){
-        return;
-    }
-
-    /*
-       180 derece dönüş yok.
-    */
-
-    if(
-        x===-direction.x &&
-        y===-direction.y
-    ){
-        return;
-    }
-
-    /*
-       Aynı yöne tekrar dokunmayı engelle.
-    */
-
-    nextDirection={
-        x,
-        y
-    };
-}
-
-
-/* =====================================================
-   PLAYER MOVE
-===================================================== */
-
-function moveSnake(){
-
-    direction=
-        nextDirection;
-
-    const head=
-        snake[0];
-
-    const nx=
-        head.x+
-        direction.x;
-
-    const ny=
-        head.y+
-        direction.y;
-
-    /*
-       Sınır.
-    */
-
-    if(
-        !isInside(nx,ny)
-    ){
-
-        if(shieldTimer>0){
-
-            shieldTimer=0;
-
-            haptic(30);
-
-            showMessage(
-                "🛡️ SHIELD"
-            );
-
-        }else{
-
-            gameOver();
-
-            return;
-        }
-    }
-
-    if(!running)
-        return;
-
-    /*
-       Harita engeli.
-    */
-
-    if(
-        obstacleAt(nx,ny)
-    ){
-
-        if(shieldTimer>0){
-
-            shieldTimer=0;
-
-            haptic(35);
-
-            createExplosion(
-                nx*CELL+CELL/2,
-                ny*CELL+CELL/2,
-                "#7c5cff",
-                18
-            );
-
-            showMessage(
-                "SHIELD BLOCKED"
-            );
-
-        }else{
-
-            gameOver();
-
-            return;
-        }
-    }
-
-    if(!running)
-        return;
-
-    /*
-       Kendi gövdesi.
-    */
-
-    if(
-        snake.some(
-            (s,i)=>
-                i>0 &&
-                s.x===nx &&
-                s.y===ny
-        )
-    ){
-
-        if(shieldTimer>0){
-
-            shieldTimer=0;
-
-            showMessage(
-                "SHIELD BLOCKED"
-            );
-
-        }else{
-
-            gameOver();
-
-            return;
-        }
-    }
-
-    if(!running)
-        return;
-
-    snake.unshift({
-        x:nx,
-        y:ny
+    if(foods.length >= 10) return;
+    foods.push({
+        x: 40 + Math.random() * (W - 80),
+        y: 40 + Math.random() * (H - 80),
+        r: 8,
+        val: 10
     });
-
-    /*
-       Yem.
-    */
-
-    if(
-        food &&
-        nx===food.x &&
-        ny===food.y
-    ){
-
-        eatFood();
-
-    }else{
-
-        snake.pop();
-    }
-
-    /*
-       Rakip kontrolü.
-    */
-
-    checkPlayerEnemyCollision();
 }
 
+function checkFoodCollision(){
+    const head = snake[0];
 
-/* =====================================================
-   EAT
-===================================================== */
+    for(let i = foods.length - 1; i >= 0; i--){
+        const f = foods[i];
+        const dist = Math.hypot(head.x - f.x, head.y - f.y);
 
-function eatFood(){
+        if(magnetLevel > 0 && dist < 120 + (magnetLevel * 30)){
+            f.x += (head.x - f.x) * 0.08;
+            f.y += (head.y - f.y) * 0.08;
+        }
 
-    if(!food)
-        return;
+        if(dist < SNAKE_RADIUS + f.r){
+            foods.splice(i, 1);
+            eatFood(f.val || 10);
+        }
+    }
+}
 
-    const oldFood={
-        x:food.x,
-        y:food.y
-    };
+function eatFood(val = 10){
+    const multiplier = inRiskZone ? 3 : 1;
+    const finalVal = val * multiplier;
 
-    const gained=
-        10*combo;
+    score += finalVal * combo;
+    snakeLength += Math.max(1, Math.floor(val / 5)); 
+    combo = Math.min(10, combo + 1);
 
-    score+=gained;
-
-    coins++;
-
-    comboTimer=180;
-
-    combo=
-        Math.min(
-            10,
-            combo+1
-        );
-
-    gainXP(15);
-
-    startDigestPulse();
-
-    createExplosion(
-        oldFood.x*CELL+CELL/2,
-        oldFood.y*CELL+CELL/2,
-        "#00ffff",
-        14
-    );
-
-    sound(
-        650+
-        combo*35,
-        .08,
-        "sine",
-        .04
-    );
-
+    gainXP(finalVal);
+    createExplosion(snake[0].x, snake[0].y, inRiskZone ? "#ff0055" : "#00ffff", 8);
+    sound(600 + combo * 30, .08, "sine", .04);
     haptic(8);
-
-    /*
-       Büyü.
-    */
-
-    const tail=
-        snake[snake.length-1];
-
-    snake.push({
-        x:tail.x,
-        y:tail.y
-    });
-
-    food=null;
-
-    /*
-       Yem anında tekrar oluşuyor.
-    */
-
-    spawnFood();
-
     updateHUD();
 }
 
 
 /* =====================================================
-   LOW RANGE MAGNET
-===================================================== */
-
-function updateMagnet(){
-
-    if(
-        !food ||
-        magnetLevel<=0 ||
-        snake.length===0
-    ){
-        return;
-    }
-
-    const head=
-        snake[0];
-
-    const dx=
-        head.x-food.x;
-
-    const dy=
-        head.y-food.y;
-
-    const dist=
-        Math.hypot(dx,dy);
-
-    /*
-       Lv1 = 2
-       Lv2 = 3
-       Lv3 = 4
-
-       Daha fazla gitmiyor.
-    */
-
-    const range=
-        Math.min(
-            4,
-            1+magnetLevel
-        );
-
-    if(
-        dist<=range &&
-        dist>1
-    ){
-
-        let nx=
-            food.x;
-
-        let ny=
-            food.y;
-
-        if(
-            Math.abs(dx)>
-            Math.abs(dy)
-        ){
-
-            nx+=
-                Math.sign(dx);
-
-        }else{
-
-            ny+=
-                Math.sign(dy);
-        }
-
-        if(
-            isInside(nx,ny) &&
-            !obstacleAt(nx,ny) &&
-            !cellOccupiedBySnake(nx,ny)
-        ){
-
-            food.x=nx;
-            food.y=ny;
-
-            sound(
-                280,
-                .025,
-                "sine",
-                .008
-            );
-        }
-    }
-}
-
-
-/* =====================================================
-   DIGEST
-===================================================== */
-
-function startDigestPulse(){
-
-    digest={
-        progress:0,
-        duration:380
-    };
-
-    sound(
-        180,
-        .1,
-        "triangle",
-        .035
-    );
-}
-
-function updateDigest(dt){
-
-    if(!digest)
-        return;
-
-    digest.progress+=dt;
-
-    if(
-        digest.progress>=
-        digest.duration
-    ){
-
-        digest=null;
-    }
-}
-
-function drawDigest(){
-
-    if(
-        !digest ||
-        snake.length<2
-    ){
-        return;
-    }
-
-    const p=
-        Math.min(
-            1,
-            digest.progress/
-            digest.duration
-        );
-
-    const index=
-        Math.floor(
-            p*
-            Math.max(
-                1,
-                snake.length-1
-            )
-        );
-
-    for(
-        let i=0;
-        i<snake.length;
-        i++
-    ){
-
-        if(
-            i<=index &&
-            i>index-3
-        ){
-
-            const s=
-                snake[i];
-
-            ctx.save();
-
-            ctx.globalAlpha=
-                1-
-                Math.abs(index-i)*.25;
-
-            ctx.shadowBlur=22;
-
-            ctx.shadowColor="#00ffff";
-
-            ctx.fillStyle="#ffffff";
-
-            ctx.beginPath();
-
-            ctx.arc(
-                s.x*CELL+CELL/2,
-                s.y*CELL+CELL/2,
-                CELL*.25,
-                0,
-                Math.PI*2
-            );
-
-            ctx.fill();
-
-            ctx.restore();
-        }
-    }
-}
-
-
-/* =====================================================
-   ENEMIES
-===================================================== */
+   ENEMIES & DEV BOSS YILAN
+========================================================= */
 
 function spawnEnemy(){
+    if(enemies.length >= 3) return;
 
-    if(
-        enemies.length>=5
-    ){
-        return;
+    let body = [];
+    const ex = 50 + Math.random() * (W - 100);
+    const ey = 50 + Math.random() * (H - 100);
+    const eAngle = Math.random() * Math.PI * 2;
+
+    for(let i=0; i<20; i++){
+        body.push({ x: ex - i * SEGMENT_DISTANCE, y: ey });
     }
 
-    for(
-        let attempt=0;
-        attempt<100;
-        attempt++
-    ){
-
-        const x=
-            2+
-            Math.floor(
-                Math.random()*
-                Math.max(
-                    1,
-                    cols-4
-                )
-            );
-
-        const y=
-            2+
-            Math.floor(
-                Math.random()*
-                Math.max(
-                    1,
-                    rows-4
-                )
-            );
-
-        if(
-            Math.hypot(
-                x-snake[0].x,
-                y-snake[0].y
-            )<11
-        ){
-            continue;
-        }
-
-        if(obstacleAt(x,y))
-            continue;
-
-        const body=[];
-
-        const len=
-            4+
-            Math.floor(
-                Math.random()*5
-            );
-
-        for(
-            let i=0;
-            i<len;
-            i++
-        ){
-
-            const sx=x-i;
-            const sy=y;
-
-            if(
-                !isInside(
-                    sx,
-                    sy
-                )
-            ){
-                break;
-            }
-
-            if(
-                obstacleAt(
-                    sx,
-                    sy
-                )
-            ){
-                break;
-            }
-
-            body.push({
-                x:sx,
-                y:sy
-            });
-        }
-
-        if(
-            body.length>=4
-        ){
-
-            enemies.push({
-
-                body,
-
-                dir:{
-                    x:
-                        Math.random()>.5
-                        ?1
-                        :-1,
-                    y:0
-                },
-
-                timer:0,
-
-                speed:
-                    470+
-                    Math.random()*220,
-
-                color:
-                    Math.random()>.5
-                    ?"#ff3d88"
-                    :"#ff791c"
-
-            });
-
-            return;
-        }
-    }
+    enemies.push({
+        body,
+        angle: eAngle,
+        speed: 1.6,
+        radius: SNAKE_RADIUS * 0.8,
+        color: Math.random() > .5 ? "#ff3d88" : "#ff791c",
+        isBoss: false
+    });
 }
 
-function moveEnemies(dt){
+function spawnBoss(){
+    if(bossActive) return;
+    bossActive = true;
+    showMessage("⚠️ DEV BOSS YILAN ÇIKTI!");
 
-    for(
-        let i=enemies.length-1;
-        i>=0;
-        i--
-    ){
+    let body = [];
+    const ex = W / 2;
+    const ey = H / 2;
 
-        const e=
-            enemies[i];
+    for(let i=0; i<60; i++){
+        body.push({ x: ex - i * 12, y: ey });
+    }
 
-        e.timer+=dt;
+    enemies.push({
+        body,
+        angle: Math.random() * Math.PI * 2,
+        speed: 1.3,
+        radius: SNAKE_RADIUS * 1.8,
+        color: "#ff0055",
+        isBoss: true
+    });
 
-        if(
-            e.timer<e.speed
-        ){
-            continue;
-        }
+    sound(150, .5, "sawtooth", .1);
+}
 
-        e.timer=0;
+function killEnemy(index){
+    const e = enemies[index];
+    if(!e) return;
 
-        const head=
-            e.body[0];
+    if(e.isBoss){
+        bossActive = false;
+        bossSpawnTimer = 0;
+        score += 300;
+        gainXP(100);
+        showMessage("🏆 DEV BOSS YOK EDİLDİ!");
+    } else {
+        score += 50;
+        gainXP(25);
+        showMessage("⚔️ DÜŞMAN İMHA EDİLDİ!");
+    }
 
-        /*
-           Oyuncuyu ara sıra takip et.
-        */
-
-        if(
-            Math.random()<.6
-        ){
-
-            const dx=
-                snake[0].x-
-                head.x;
-
-            const dy=
-                snake[0].y-
-                head.y;
-
-            if(
-                Math.abs(dx)>
-                Math.abs(dy)
-            ){
-
-                e.dir={
-                    x:Math.sign(dx),
-                    y:0
-                };
-
-            }else{
-
-                e.dir={
-                    x:0,
-                    y:Math.sign(dy)
-                };
-            }
-
-        }else if(
-            Math.random()<.3
-        ){
-
-            const dirs=[
-
-                {x:1,y:0},
-                {x:-1,y:0},
-                {x:0,y:1},
-                {x:0,y:-1}
-
-            ];
-
-            e.dir=
-                dirs[
-                    Math.floor(
-                        Math.random()*
-                        dirs.length
-                    )
-                ];
-        }
-
-        const nx=
-            head.x+
-            e.dir.x;
-
-        const ny=
-            head.y+
-            e.dir.y;
-
-        if(
-            !isInside(nx,ny) ||
-            obstacleAt(nx,ny) ||
-            e.body.some(
-                (s,j)=>
-                    j>0 &&
-                    s.x===nx &&
-                    s.y===ny
-            )
-        ){
-
-            const dirs=[
-
-                {x:1,y:0},
-                {x:-1,y:0},
-                {x:0,y:1},
-                {x:0,y:-1}
-
-            ];
-
-            let found=false;
-
-            for(
-                const d of dirs
-            ){
-
-                const tx=
-                    head.x+d.x;
-
-                const ty=
-                    head.y+d.y;
-
-                if(
-                    isInside(
-                        tx,
-                        ty
-                    ) &&
-                    !obstacleAt(
-                        tx,
-                        ty
-                    )
-                ){
-
-                    e.dir=d;
-
-                    found=true;
-
-                    break;
-                }
-            }
-
-            if(!found){
-
-                killEnemy(
-                    i,
-                    false
-                );
-            }
-
-            continue;
-        }
-
-        e.body.unshift({
-            x:nx,
-            y:ny
+    for(let i = 0; i < e.body.length; i += 2){
+        foods.push({
+            x: e.body[i].x + (Math.random() * 20 - 10),
+            y: e.body[i].y + (Math.random() * 20 - 10),
+            r: e.isBoss ? 10 : 7,
+            val: e.isBoss ? 35 : 15
         });
+    }
 
+    createExplosion(e.body[0].x, e.body[0].y, e.color, e.isBoss ? 60 : 25);
+    sound(200, .3, "sawtooth", .1);
+    haptic([30, 60, 30]);
+    enemies.splice(index, 1);
+}
+
+function updateEnemies(){
+    for(let i = enemies.length - 1; i >= 0; i--){
+        const e = enemies[i];
+        const eHead = e.body[0];
+
+        if(Math.random() < 0.03 && snake.length){
+            const dx = snake[0].x - eHead.x;
+            const dy = snake[0].y - eHead.y;
+            e.angle = Math.atan2(dy, dx);
+        }
+
+        let newX = eHead.x + Math.cos(e.angle) * e.speed;
+        let newY = eHead.y + Math.sin(e.angle) * e.speed;
+
+        if (newX < 0) newX = W;
+        else if (newX > W) newX = 0;
+        if (newY < 0) newY = H;
+        else if (newY > H) newY = 0;
+
+        e.body.unshift({ x: newX, y: newY });
         e.body.pop();
 
-        /*
-           Rakip kafası bizim
-           gövdemize çarptı.
-        */
+        const newEHead = e.body[0];
 
-        if(
-            snake.some(
-                (s,j)=>
-                    j>0 &&
-                    s.x===nx &&
-                    s.y===ny
-            )
-        ){
-
-            killEnemy(
-                i,
-                true
-            );
-
-            continue;
-        }
-    }
-
-    /*
-       Rakipler birbirine çarparsa
-       yok olabilir.
-    */
-
-    for(
-        let a=enemies.length-1;
-        a>=0;
-        a--
-    ){
-
-        if(!enemies[a])
-            continue;
-
-        const A=
-            enemies[a].body[0];
-
-        for(
-            let b=a-1;
-            b>=0;
-            b--
-        ){
-
-            if(!enemies[b])
-                continue;
-
-            const B=
-                enemies[b].body[0];
-
-            if(
-                A.x===B.x &&
-                A.y===B.y
-            ){
-
-                killEnemy(
-                    a,
-                    false
-                );
-
-                if(enemies[b]){
-                    killEnemy(
-                        b,
-                        false
-                    );
-                }
-
-                break;
-            }
-        }
-    }
-}
-
-
-/* =====================================================
-   ENEMY COLLISION
-===================================================== */
-
-function checkPlayerEnemyCollision(){
-
-    const head=
-        snake[0];
-
-    for(
-        let i=enemies.length-1;
-        i>=0;
-        i--
-    ){
-
-        const e=
-            enemies[i];
-
-        /*
-           Oyuncunun kafası rakibin
-           gövdesine girerse oyuncu ölür.
-        */
-
-        for(
-            let j=1;
-            j<e.body.length;
-            j++
-        ){
-
-            const s=
-                e.body[j];
-
-            if(
-                head.x===s.x &&
-                head.y===s.y
-            ){
-
-                if(
-                    shieldTimer>0
-                ){
-
-                    shieldTimer=0;
-
-                    killEnemy(
-                        i,
-                        true
-                    );
-
-                }else{
-
-                    gameOver();
-                }
-
+        // 1. DÜŞMAN BİZİM GÖVDEMİZE ÇARPARSA
+        for(let j = 5; j < snake.length; j++){
+            if(Math.hypot(newEHead.x - snake[j].x, newEHead.y - snake[j].y) < e.radius + SNAKE_RADIUS){
+                killEnemy(i);
                 return;
             }
         }
 
-        /*
-           Kafa kafaya.
-           Oyuncu kazanır.
-        */
-
-        const eh=
-            e.body[0];
-
-        if(
-            head.x===eh.x &&
-            head.y===eh.y
-        ){
-
-            killEnemy(
-                i,
-                true
-            );
-
-            return;
+        // 2. BİZİM KAFAMIZ DÜŞMANIN GÖVDESİNE ÇARPARSA
+        for(let j = 0; j < e.body.length; j++){
+            if(Math.hypot(snake[0].x - e.body[j].x, snake[0].y - e.body[j].y) < SNAKE_RADIUS + e.radius){
+                if(shieldTimer > 0){
+                    shieldTimer = 0;
+                    killEnemy(i);
+                    return;
+                } else {
+                    gameOver();
+                    return;
+                }
+            }
         }
     }
 }
 
 
 /* =====================================================
-   KILL ENEMY
-===================================================== */
+   PARTICLES & RENDER
+========================================================= */
 
-function killEnemy(
-    index,
-    reward
-){
-
-    const e=
-        enemies[index];
-
-    if(!e)
-        return;
-
-    const h=
-        e.body[0];
-
-    createExplosion(
-        h.x*CELL+CELL/2,
-        h.y*CELL+CELL/2,
-        e.color,
-        28
-    );
-
-    sound(
-        reward?120:80,
-        .14,
-        "sawtooth",
-        .035
-    );
-
-    haptic(
-        reward
-        ?[15,20,15]
-        :20
-    );
-
-    if(reward){
-
-        const gained=
-            100+
-            e.body.length*10;
-
-        score+=gained;
-
-        coins+=5;
-
-        gainXP(30);
-
-        showMessage(
-            "⚔️ ENEMY +" +
-            gained
-        );
-
-        /*
-           Ödül olarak büyü.
-        */
-
-        const tail=
-            snake[
-                snake.length-1
-            ];
-
-        snake.push({
-            x:tail.x,
-            y:tail.y
-        });
-    }
-
-    enemies.splice(
-        index,
-        1
-    );
-
-    saveData();
-
-    updateHUD();
-}
-
-
-/* =====================================================
-   PARTICLES
-===================================================== */
-
-function createExplosion(
-    x,
-    y,
-    color,
-    count
-){
-
-    /*
-       iPhone'da particle sayısını
-       sınırlıyoruz.
-    */
-
-    count=
-        Math.min(
-            count,
-            35
-        );
-
-    for(
-        let i=0;
-        i<count;
-        i++
-    ){
-
-        const a=
-            Math.random()*
-            Math.PI*2;
-
-        const speed=
-            1+
-            Math.random()*3.5;
-
+function createExplosion(x, y, color, count){
+    for(let i=0; i<count; i++){
+        const a = Math.random() * Math.PI * 2;
+        const spd = 1 + Math.random() * 4;
         particles.push({
-
-            x,
-            y,
-
-            vx:
-                Math.cos(a)*
-                speed,
-
-            vy:
-                Math.sin(a)*
-                speed,
-
-            life:1,
-
-            size:
-                1.5+
-                Math.random()*3.5,
-
-            color
-
+            x, y, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd,
+            life: 1, size: 2 + Math.random() * 4, color
         });
     }
 }
 
 function updateParticles(){
+    for(let i = particles.length - 1; i >= 0; i--){
+        const p = particles[i];
+        p.x += p.vx; p.y += p.vy;
+        p.life -= 0.03;
+        if(p.life <= 0) particles.splice(i, 1);
+    }
+}
 
-    /*
-       iPhone memory/performance
-       güvenliği.
-    */
+function drawMap(){
+    ctx.fillStyle = "#02050a";
+    ctx.fillRect(0, 0, W, H);
 
-    if(
-        particles.length>300
-    ){
+    // Kırmızı Risk Bölgesi
+    ctx.save();
+    const riskGrad = ctx.createRadialGradient(W/2, H/2, 10, W/2, H/2, 120);
+    riskGrad.addColorStop(0, "rgba(255, 0, 85, 0.25)");
+    riskGrad.addColorStop(1, "rgba(255, 0, 85, 0)");
+    ctx.fillStyle = riskGrad;
+    ctx.beginPath();
+    ctx.arc(W/2, H/2, 120, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(255, 0, 85, 0.4)";
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([6, 6]);
+    ctx.stroke();
+    ctx.restore();
 
-        particles.splice(
-            0,
-            particles.length-300
-        );
+    // Engeller
+    for(const obs of obstacles){
+        ctx.save();
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = "rgba(100,70,255,.3)";
+        ctx.fillStyle = "rgba(15,22,38,.9)";
+        ctx.beginPath();
+        ctx.arc(obs.x, obs.y, obs.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(110,80,255,.4)";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        ctx.restore();
+    }
+}
+
+function drawSnake(){
+    if(!snake.length) return;
+
+    ctx.save();
+    ctx.shadowBlur = 12;
+    ctx.shadowColor = shieldTimer > 0 ? "#7755ff" : (inRiskZone ? "#ff0055" : "#00ffff");
+
+    for(let i = snake.length - 1; i >= 0; i--){
+        const p = snake[i];
+        const ratio = i / snake.length;
+        const radius = SNAKE_RADIUS * (1 - ratio * 0.3);
+
+        ctx.fillStyle = i === 0 ? "#ffffff" : `hsl(${inRiskZone ? 340 : 180 + ratio * 40}, 100%, 50%)`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
+        ctx.fill();
     }
 
-    for(
-        let i=particles.length-1;
-        i>=0;
-        i--
-    ){
+    const head = snake[0];
+    const eyeOffset = 6;
+    ctx.fillStyle = "#02050a";
+    ctx.beginPath();
+    ctx.arc(head.x + Math.cos(angle - 0.5) * eyeOffset, head.y + Math.sin(angle - 0.5) * eyeOffset, 2.5, 0, Math.PI * 2);
+    ctx.arc(head.x + Math.cos(angle + 0.5) * eyeOffset, head.y + Math.sin(angle + 0.5) * eyeOffset, 2.5, 0, Math.PI * 2);
+    ctx.fill();
 
-        const p=
-            particles[i];
+    ctx.restore();
+}
 
-        p.x+=p.vx;
-        p.y+=p.vy;
+function drawEnemies(){
+    for(const e of enemies){
+        ctx.save();
+        ctx.shadowBlur = e.isBoss ? 20 : 10;
+        ctx.shadowColor = e.color;
+        ctx.fillStyle = e.color;
 
-        p.vx*=.97;
-        p.vy*=.97;
-
-        p.life-=.035;
-
-        if(
-            p.life<=0
-        ){
-
-            particles.splice(
-                i,
-                1
-            );
+        for(let i = e.body.length - 1; i >= 0; i--){
+            const p = e.body[i];
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, e.radius, 0, Math.PI * 2);
+            ctx.fill();
         }
+        ctx.restore();
+    }
+}
+
+function drawFoods(){
+    for(const f of foods){
+        ctx.save();
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = f.val > 15 ? "#ffaa00" : "#00ffff";
+        ctx.fillStyle = f.val > 15 ? "#ffcc00" : "#66ffff";
+        ctx.beginPath();
+        ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
     }
 }
 
 function drawParticles(){
-
-    for(
-        const p of particles
-    ){
-
+    for(const p of particles){
         ctx.save();
-
-        ctx.globalAlpha=
-            p.life;
-
-        ctx.fillStyle=
-            p.color;
-
-        ctx.shadowBlur=10;
-
-        ctx.shadowColor=
-            p.color;
-
+        ctx.globalAlpha = p.life;
+        ctx.fillStyle = p.color;
         ctx.beginPath();
-
-        ctx.arc(
-            p.x,
-            p.y,
-            p.size,
-            0,
-            Math.PI*2
-        );
-
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fill();
-
         ctx.restore();
     }
 }
 
 
 /* =====================================================
-   DRAW MAP
-===================================================== */
-
-function drawMap(time){
-
-    ctx.fillStyle="#02050a";
-
-    ctx.fillRect(
-        0,
-        0,
-        W,
-        H
-    );
-
-    /*
-       Grid
-    */
-
-    ctx.strokeStyle=
-        "rgba(0,180,210,.045)";
-
-    ctx.lineWidth=1;
-
-    for(
-        let x=0;
-        x<=cols;
-        x++
-    ){
-
-        ctx.beginPath();
-
-        ctx.moveTo(
-            x*CELL,
-            0
-        );
-
-        ctx.lineTo(
-            x*CELL,
-            H
-        );
-
-        ctx.stroke();
-    }
-
-    for(
-        let y=0;
-        y<=rows;
-        y++
-    ){
-
-        ctx.beginPath();
-
-        ctx.moveTo(
-            0,
-            y*CELL
-        );
-
-        ctx.lineTo(
-            W,
-            y*CELL
-        );
-
-        ctx.stroke();
-    }
-
-    /*
-       Enerji bölgeleri.
-    */
-
-    for(
-        const z of zones
-    ){
-
-        const px=
-            z.x*CELL;
-
-        const py=
-            z.y*CELL;
-
-        const radius=
-            z.r*CELL;
-
-        const alpha=
-            .035+
-            Math.sin(
-                time*.001+
-                z.phase
-            )*.012;
-
-        const grad=
-            ctx.createRadialGradient(
-                px,
-                py,
-                0,
-                px,
-                py,
-                radius
-            );
-
-        grad.addColorStop(
-            0,
-            `rgba(
-                0,
-                255,
-                255,
-                ${alpha}
-            )`
-        );
-
-        grad.addColorStop(
-            1,
-            "rgba(0,255,255,0)"
-        );
-
-        ctx.fillStyle=grad;
-
-        ctx.beginPath();
-
-        ctx.arc(
-            px,
-            py,
-            radius,
-            0,
-            Math.PI*2
-        );
-
-        ctx.fill();
-    }
-
-    /*
-       Engeller.
-    */
-
-    for(
-        const o of obstacles
-    ){
-
-        const px=
-            o.x*CELL;
-
-        const py=
-            o.y*CELL;
-
-        const pulse=
-            .45+
-            Math.sin(
-                time*.003+
-                o.phase
-            )*.12;
-
-        ctx.save();
-
-        ctx.shadowBlur=10;
-
-        ctx.shadowColor=
-            "rgba(100,70,255,.35)";
-
-        ctx.fillStyle=
-            "rgba(11,17,31,.96)";
-
-        ctx.fillRect(
-            px+3,
-            py+3,
-            CELL-6,
-            CELL-6
-        );
-
-        ctx.strokeStyle=
-            `rgba(
-                110,
-                80,
-                255,
-                ${pulse}
-            )`;
-
-        ctx.strokeRect(
-            px+4,
-            py+4,
-            CELL-8,
-            CELL-8
-        );
-
-        ctx.restore();
-    }
-
-    /*
-       Arena sınırı.
-    */
-
-    ctx.strokeStyle=
-        "rgba(0,255,255,.25)";
-
-    ctx.lineWidth=2;
-
-    ctx.strokeRect(
-        2,
-        2,
-        W-4,
-        H-4
-    );
-}
-
-
-/* =====================================================
-   DRAW FOOD
-===================================================== */
-
-function drawFood(time){
-
-    if(!food)
-        return;
-
-    const x=
-        food.x*CELL+
-        CELL/2;
-
-    const y=
-        food.y*CELL+
-        CELL/2;
-
-    const pulse=
-        1+
-        Math.sin(
-            time*.008+
-            food.phase
-        )*.16;
-
-    ctx.save();
-
-    ctx.shadowBlur=22;
-
-    ctx.shadowColor=
-        "#00ffff";
-
-    ctx.fillStyle=
-        "#73ffff";
-
-    ctx.beginPath();
-
-    ctx.arc(
-        x,
-        y,
-        CELL*.21*pulse,
-        0,
-        Math.PI*2
-    );
-
-    ctx.fill();
-
-    ctx.strokeStyle=
-        "rgba(0,255,255,.45)";
-
-    ctx.lineWidth=1.5;
-
-    ctx.beginPath();
-
-    ctx.arc(
-        x,
-        y,
-        CELL*.37*pulse,
-        0,
-        Math.PI*2
-    );
-
-    ctx.stroke();
-
-    ctx.restore();
-}
-
-
-/* =====================================================
-   DRAW SNAKE
-===================================================== */
-
-function drawSnake(){
-
-    for(
-        let i=snake.length-1;
-        i>=0;
-        i--
-    ){
-
-        const s=
-            snake[i];
-
-        const x=
-            s.x*CELL+
-            CELL/2;
-
-        const y=
-            s.y*CELL+
-            CELL/2;
-
-        ctx.save();
-
-        ctx.shadowBlur=
-            i===0
-            ?22
-            :10;
-
-        ctx.shadowColor=
-            "#00ffff";
-
-        ctx.fillStyle=
-            i===0
-            ?"rgba(245,255,255,.98)"
-            :"rgba(35,205,230,.94)";
-
-        ctx.beginPath();
-
-        ctx.roundRect(
-            x-CELL*.37,
-            y-CELL*.37,
-            CELL*.74,
-            CELL*.74,
-            7
-        );
-
-        ctx.fill();
-
-        ctx.restore();
-    }
-
-    /*
-       Gözler.
-    */
-
-    const h=
-        snake[0];
-
-    const hx=
-        h.x*CELL+
-        CELL/2;
-
-    const hy=
-        h.y*CELL+
-        CELL/2;
-
-    ctx.fillStyle="#071016";
-
-    const ox=5;
-    const oy=5;
-
-    ctx.beginPath();
-
-    ctx.arc(
-        hx-ox,
-        hy-oy,
-        2.5,
-        0,
-        Math.PI*2
-    );
-
-    ctx.fill();
-
-    ctx.beginPath();
-
-    ctx.arc(
-        hx+ox,
-        hy-oy,
-        2.5,
-        0,
-        Math.PI*2
-    );
-
-    ctx.fill();
-}
-
-
-/* =====================================================
-   DRAW ENEMIES
-===================================================== */
-
-function drawEnemies(){
-
-    for(
-        const e of enemies
-    ){
-
-        for(
-            let i=e.body.length-1;
-            i>=0;
-            i--
-        ){
-
-            const s=
-                e.body[i];
-
-            const x=
-                s.x*CELL+
-                CELL/2;
-
-            const y=
-                s.y*CELL+
-                CELL/2;
-
-            ctx.save();
-
-            ctx.globalAlpha=
-                .5+
-                .5*
-                (
-                    1-
-                    i/e.body.length
-                );
-
-            ctx.fillStyle=
-                e.color;
-
-            ctx.shadowBlur=13;
-
-            ctx.shadowColor=
-                e.color;
-
-            ctx.beginPath();
-
-            ctx.arc(
-                x,
-                y,
-                CELL*.31,
-                0,
-                Math.PI*2
-            );
-
-            ctx.fill();
-
-            ctx.restore();
-        }
-
-        /*
-           Rakip göz.
-        */
-
-        const h=
-            e.body[0];
-
-        ctx.fillStyle="#fff";
-
-        ctx.beginPath();
-
-        ctx.arc(
-            h.x*CELL+
-            CELL/2,
-            h.y*CELL+
-            CELL/2,
-            3,
-            0,
-            Math.PI*2
-        );
-
-        ctx.fill();
-    }
-}
-
-
-/* =====================================================
-   SHIELD
-===================================================== */
-
-function drawShield(){
-
-    if(
-        shieldTimer<=0 ||
-        !snake.length
-    ){
-        return;
-    }
-
-    const h=
-        snake[0];
-
-    const x=
-        h.x*CELL+
-        CELL/2;
-
-    const y=
-        h.y*CELL+
-        CELL/2;
-
-    const pulse=
-        1+
-        Math.sin(
-            performance.now()*.01
-        )*.08;
-
-    ctx.save();
-
-    ctx.strokeStyle=
-        "rgba(0,255,255,.7)";
-
-    ctx.shadowBlur=20;
-
-    ctx.shadowColor=
-        "#00ffff";
-
-    ctx.lineWidth=2;
-
-    ctx.beginPath();
-
-    ctx.arc(
-        x,
-        y,
-        CELL*.7*pulse,
-        0,
-        Math.PI*2
-    );
-
-    ctx.stroke();
-
-    ctx.restore();
-}
-
-
-/* =====================================================
-   XP
-===================================================== */
+   ABILITIES & LOGIC
+========================================================= */
 
 function gainXP(amount){
-
-    xp+=amount;
-
-    if(
-        xp>=100
-    ){
-
-        xp-=100;
-
+    xp += amount;
+    if(xp >= 100){
+        xp -= 100;
         level++;
-
-        updateHUD();
-
-        running=false;
-
-        haptic(
-            [20,30,20]
-        );
-
-        sound(
-            800,
-            .2,
-            "triangle",
-            .05
-        );
-
-        document
-            .getElementById(
-                "upgradeScreen"
-            )
-            .classList.remove(
-                "hidden"
-            );
+        running = false;
+        document.getElementById("upgradeScreen").classList.remove("hidden");
     }
-}
-
-
-/* =====================================================
-   UPGRADE
-===================================================== */
-
-function upgrade(type){
-
-    if(
-        type==="speed"
-    ){
-
-        speedLevel++;
-    }
-
-    if(
-        type==="magnet"
-    ){
-
-        magnetLevel=
-            Math.min(
-                3,
-                magnetLevel+1
-            );
-    }
-
-    if(
-        type==="shield"
-    ){
-
-        shieldLevel++;
-    }
-
-    document
-        .getElementById(
-            "upgradeScreen"
-        )
-        .classList.add(
-            "hidden"
-        );
-
-    running=true;
-
-    lastMove=
-        performance.now();
-
-    sound(
-        550,
-        .12,
-        "triangle",
-        .035
-    );
-
     updateHUD();
 }
 
+function upgrade(type){
+    if(type === 'speed') speedLevel++;
+    if(type === 'magnet') magnetLevel++;
+    if(type === 'shield') shieldLevel++;
 
-/* =====================================================
-   ABILITIES
-===================================================== */
-
-function dash(){
-
-    if(
-        !running ||
-        dashCooldown>0
-    ){
-        return;
-    }
-
-    dashCooldown=1200;
-
-    haptic(
-        [15,10,15]
-    );
-
-    sound(
-        120,
-        .12,
-        "sawtooth",
-        .035
-    );
-
-    for(
-        let i=0;
-        i<3;
-        i++
-    ){
-
-        const h=
-            snake[0];
-
-        const nx=
-            h.x+
-            direction.x;
-
-        const ny=
-            h.y+
-            direction.y;
-
-        if(
-            !isInside(nx,ny) ||
-            obstacleAt(nx,ny)
-        ){
-            break;
-        }
-
-        snake.unshift({
-            x:nx,
-            y:ny
-        });
-
-        if(
-            food &&
-            nx===food.x &&
-            ny===food.y
-        ){
-
-            eatFood();
-
-        }else{
-
-            snake.pop();
-        }
-    }
-
-    createExplosion(
-        snake[0].x*CELL+
-        CELL/2,
-        snake[0].y*CELL+
-        CELL/2,
-        "#ffffff",
-        18
-    );
+    document.getElementById("upgradeScreen").classList.add("hidden");
+    running = true;
 }
 
-function emp(){
-
-    if(
-        !running ||
-        empCooldown>0
-    ){
-        return;
-    }
-
-    empCooldown=4000;
-
-    haptic(
-        [20,20,20]
-    );
-
-    sound(
-        70,
-        .25,
-        "sawtooth",
-        .035
-    );
-
-    for(
-        const e of enemies
-    ){
-
-        const h=
-            e.body[0];
-
-        const d=
-            Math.hypot(
-                h.x-snake[0].x,
-                h.y-snake[0].y
-            );
-
-        if(
-            d<9
-        ){
-
-            e.timer+=1300;
-
-            createExplosion(
-                h.x*CELL+
-                CELL/2,
-                h.y*CELL+
-                CELL/2,
-                "#7c5cff",
-                15
-            );
-        }
-    }
-
-    showMessage(
-        "◉ EMP"
-    );
+function dash(){
+    if(!running || dashCooldown > 0) return;
+    dashCooldown = 1000;
+    baseSpeed *= 1.8;
+    setTimeout(() => {
+        if(running) baseSpeed /= 1.8;
+    }, 400);
+    createExplosion(snake[0].x, snake[0].y, "#ffffff", 15);
 }
 
 function activateShield(){
-
-    if(
-        !running ||
-        shieldTimer>0
-    ){
-        return;
-    }
-
-    shieldTimer=
-        3000*
-        shieldLevel;
-
-    haptic(20);
-
-    sound(
-        400,
-        .15,
-        "sine",
-        .035
-    );
-
-    showMessage(
-        "🛡️ SHIELD"
-    );
+    if(!running || shieldTimer > 0) return;
+    shieldTimer = 3000 * shieldLevel;
+    showMessage("🛡️ SHIELD ACTIVATED");
 }
 
-function mobileAction(
-    action,
-    event
-){
-
-    if(event){
-        event.preventDefault();
+function emp(){
+    if(!running || empCooldown > 0) return;
+    empCooldown = 4000;
+    
+    for(let i = enemies.length - 1; i >= 0; i--){
+        killEnemy(i);
     }
+    
+    createExplosion(W/2, H/2, "#7c5cff", 50);
+    showMessage("◉ EMP PULSE!");
+}
 
+function mobileAction(act, e){
+    if(e) { e.preventDefault(); e.stopPropagation(); }
     initAudio();
-
-    if(
-        action==="dash"
-    ){
-        dash();
-    }
-
-    if(
-        action==="shield"
-    ){
-        activateShield();
-    }
-
-    if(
-        action==="emp"
-    ){
-        emp();
-    }
+    if(act === 'dash') dash();
+    if(act === 'shield') activateShield();
+    if(act === 'emp') emp();
 }
 
 
 /* =====================================================
-   TIMERS
-===================================================== */
+   TOUCH & MOUSE EVENTS
+========================================================= */
 
-function updateTimers(dt){
-
-    if(
-        dashCooldown>0
-    ){
-        dashCooldown-=dt;
-    }
-
-    if(
-        empCooldown>0
-    ){
-        empCooldown-=dt;
-    }
-
-    if(
-        shieldTimer>0
-    ){
-        shieldTimer-=dt;
-    }
-
-    if(
-        comboTimer>0
-    ){
-
-        comboTimer-=dt;
-
-        if(
-            comboTimer<=0
-        ){
-
-            combo=1;
-
-            updateHUD();
-        }
-    }
-
-    updateMagnet();
-
-    updateDigest(dt);
-
-    ensureFood();
-
-    enemySpawnTimer+=dt;
-
-    if(
-        enemySpawnTimer>5500
-    ){
-
-        enemySpawnTimer=0;
-
-        spawnEnemy();
-    }
+function pointerStart(e){
+    if(e.target.closest("#abilities") || e.target.closest(".screen")) return;
+    initAudio();
+    isPointerDown = true;
+    pointerMove(e);
 }
+
+function pointerMove(e){
+    if(!isPointerDown) return;
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    pointerPos = { x: clientX, y: clientY };
+}
+
+function pointerEnd(){
+    isPointerDown = false;
+}
+
+window.addEventListener("touchstart", pointerStart, {passive:false});
+window.addEventListener("touchmove", pointerMove, {passive:false});
+window.addEventListener("touchend", pointerEnd, {passive:false});
+
+window.addEventListener("mousedown", pointerStart);
+window.addEventListener("mousemove", pointerMove);
+window.addEventListener("mouseup", pointerEnd);
 
 
 /* =====================================================
-   SPEED
-===================================================== */
-
-function getSpeed(){
-
-    let speed=
-        155-
-        Math.min(
-            65,
-            speedLevel*9
-        );
-
-    /*
-       iPhone'da hızın aşırı
-       yükselmesini engelliyoruz.
-    */
-
-    return Math.max(
-        65,
-        speed
-    );
-}
-
-
-/* =====================================================
-   GAME
-===================================================== */
+   GAME LOOP & FULL RESET
+========================================================= */
 
 function startGame(){
-
     initAudio();
+    
+    // Skor, XP ve Ölçekleri Sıfırlama
+    score = 0; 
+    level = 1; 
+    xp = 0; 
+    combo = 1;
+    snakeLength = 25;
+    inRiskZone = false;
+    
+    // Yılan Yetenek ve Hız Düzeylerini Tam Sıfırlama
+    speedLevel = 1; 
+    magnetLevel = 0; 
+    shieldLevel = 1;
+    baseSpeed = 2.0; 
+    shieldTimer = 0; 
+    dashCooldown = 0; 
+    empCooldown = 0;
 
-    score=0;
-    level=1;
-    xp=0;
-    combo=1;
-
-    speedLevel=1;
-    magnetLevel=0;
-    shieldLevel=1;
-
-    shieldTimer=0;
-    dashCooldown=0;
-    empCooldown=0;
-    comboTimer=0;
-
-    enemies=[];
-    particles=[];
+    // Harita ve Düşman Sistemini Temizleme
+    bossSpawnTimer = 0; 
+    bossActive = false;
+    foods = []; 
+    enemies = []; 
+    particles = [];
 
     generateMap();
-
     createSnake();
+    running = true;
 
-    spawnFood();
-
-    /*
-       İlk iki rakip.
-    */
-
-    spawnEnemy();
-    spawnEnemy();
-
-    running=true;
-
-    document
-        .getElementById(
-            "startScreen"
-        )
-        .classList.add(
-            "hidden"
-        );
-
-    document
-        .getElementById(
-            "gameOver"
-        )
-        .classList.add(
-            "hidden"
-        );
-
-    document
-        .getElementById(
-            "upgradeScreen"
-        )
-        .classList.add(
-            "hidden"
-        );
-
-    lastMove=
-        performance.now();
-
-    lastFrame=
-        performance.now();
+    // Arayüzleri Gizleme
+    document.getElementById("riskStatus").style.display = "none";
+    document.getElementById("startScreen").classList.add("hidden");
+    document.getElementById("gameOver").classList.add("hidden");
+    document.getElementById("upgradeScreen").classList.add("hidden");
 
     updateHUD();
 }
 
 function gameOver(){
-
-    if(!running)
-        return;
-
-    running=false;
-
-    haptic(
-        [60,40,100]
-    );
-
-    sound(
-        70,
-        .3,
-        "sawtooth",
-        .05
-    );
-
-    if(
-        score>best
-    ){
-
-        best=score;
-
-        localStorage.setItem(
-            "snakeEvolutionBest",
-            best
-        );
+    running = false;
+    isPointerDown = false;
+    document.getElementById("riskStatus").style.display = "none";
+    if(score > best){
+        best = score;
+        localStorage.setItem("snakeEvolutionBest", best);
     }
 
-    saveData();
-
-    document
-        .getElementById(
-            "finalScore"
-        )
-        .innerHTML=
-            `
-            Skor:
-            <b>${score}</b><br>
-            Level:
-            <b>${level}</b><br>
-            Uzunluk:
-            <b>${snake.length}</b>
-            `;
-
-    document
-        .getElementById(
-            "gameOver"
-        )
-        .classList.remove(
-            "hidden"
-        );
-
-    updateHUD();
+    document.getElementById("finalScore").innerHTML = `Skor: <b>${score}</b><br>Level: <b>${level}</b>`;
+    document.getElementById("gameOver").classList.remove("hidden");
 }
-
-
-/* =====================================================
-   SAVE
-===================================================== */
-
-function saveData(){
-
-    localStorage.setItem(
-        "snakeEvolutionBest",
-        best
-    );
-
-    localStorage.setItem(
-        "snakeEvolutionCoins",
-        coins
-    );
-}
-
-
-/* =====================================================
-   HUD
-===================================================== */
 
 function updateHUD(){
-
-    document
-        .getElementById(
-            "score"
-        )
-        .textContent=score;
-
-    document
-        .getElementById(
-            "level"
-        )
-        .textContent=level;
-
-    document
-        .getElementById(
-            "length"
-        )
-        .textContent=
-            snake.length;
-
-    document
-        .getElementById(
-            "combo"
-        )
-        .textContent=
-            "x"+combo;
-
-    document
-        .getElementById(
-            "best"
-        )
-        .textContent=best;
-
-    document
-        .getElementById(
-            "xpText"
-        )
-        .textContent=
-            "XP "+
-            xp+
-            " / 100";
-
-    document
-        .getElementById(
-            "xpFill"
-        )
-        .style.width=
-            xp+"%";
+    document.getElementById("score").textContent = score;
+    document.getElementById("level").textContent = level;
+    document.getElementById("length").textContent = snakeLength;
+    document.getElementById("combo").textContent = "x" + combo;
+    document.getElementById("best").textContent = best;
+    document.getElementById("xpText").textContent = "XP " + xp + " / 100";
+    document.getElementById("xpFill").style.width = xp + "%";
 }
 
-
-/* =====================================================
-   MESSAGE
-===================================================== */
-
-function showMessage(text){
-
-    const el=
-        document.getElementById(
-            "message"
-        );
-
-    el.textContent=text;
-
-    el.style.opacity="1";
-
-    el.style.transform=
-        "translateX(-50%) translateY(0)";
-
-    clearTimeout(
-        el._timer
-    );
-
-    el._timer=
-        setTimeout(
-            ()=>{
-                el.style.opacity="0";
-
-                el.style.transform=
-                    "translateX(-50%) translateY(-8px)";
-            },
-            850
-        );
+function showMessage(txt){
+    const el = document.getElementById("message");
+    el.textContent = txt;
+    el.style.opacity = "1";
+    setTimeout(() => el.style.opacity = "0", 1200);
 }
 
-
-/* =====================================================
-   SWIPE CONTROL
-===================================================== */
-
-let touchStartX=0;
-let touchStartY=0;
-
-let touchStartTime=0;
-
-document.addEventListener(
-    "touchstart",
-    e=>{
-
-        /*
-           Ability butonlarına dokunuyorsa
-           swipe başlatma.
-        */
-
-        if(
-            e.target.closest(
-                "#abilities"
-            )
-        ){
-            return;
-        }
-
-        const t=
-            e.changedTouches[0];
-
-        touchStartX=t.clientX;
-        touchStartY=t.clientY;
-
-        touchStartTime=
-            performance.now();
-
-    },
-    {
-        passive:false
-    }
-);
-
-document.addEventListener(
-    "touchend",
-    e=>{
-
-        if(
-            e.target.closest(
-                "#abilities"
-            )
-        ){
-            return;
-        }
-
-        const t=
-            e.changedTouches[0];
-
-        const dx=
-            t.clientX-
-            touchStartX;
-
-        const dy=
-            t.clientY-
-            touchStartY;
-
-        const distance=
-            Math.hypot(
-                dx,
-                dy
-            );
-
-        const elapsed=
-            performance.now()-
-            touchStartTime;
-
-        /*
-           Küçük dokunuşları
-           yön değişimi sayma.
-        */
-
-        if(
-            distance<25 ||
-            elapsed>500
-        ){
-            return;
-        }
-
-        if(
-            Math.abs(dx)>
-            Math.abs(dy)
-        ){
-
-            setDirection(
-                dx>0?1:-1,
-                0
-            );
-
-        }else{
-
-            setDirection(
-                0,
-                dy>0?1:-1
-            );
-        }
-
-        haptic(5);
-
-    },
-    {
-        passive:false
-    }
-);
-
-
-/* =====================================================
-   PREVENT IOS GESTURES
-===================================================== */
-
-document.addEventListener(
-    "gesturestart",
-    e=>{
-        e.preventDefault();
-    },
-    {
-        passive:false
-    }
-);
-
-document.addEventListener(
-    "gesturechange",
-    e=>{
-        e.preventDefault();
-    },
-    {
-        passive:false
-    }
-);
-
-document.addEventListener(
-    "gestureend",
-    e=>{
-        e.preventDefault();
-    },
-    {
-        passive:false
-    }
-);
-
-
-/* =====================================================
-   KEYBOARD
-   Masaüstü test için de kalsın.
-===================================================== */
-
-document.addEventListener(
-    "keydown",
-    e=>{
-
-        initAudio();
-
-        if(
-            e.key==="ArrowUp" ||
-            e.key.toLowerCase()==="w"
-        ){
-
-            setDirection(
-                0,
-                -1
-            );
-        }
-
-        if(
-            e.key==="ArrowDown" ||
-            e.key.toLowerCase()==="s"
-        ){
-
-            setDirection(
-                0,
-                1
-            );
-        }
-
-        if(
-            e.key==="ArrowLeft" ||
-            e.key.toLowerCase()==="a"
-        ){
-
-            setDirection(
-                -1,
-                0
-            );
-        }
-
-        if(
-            e.key==="ArrowRight" ||
-            e.key.toLowerCase()==="d"
-        ){
-
-            setDirection(
-                1,
-                0
-            );
-        }
-
-        if(
-            e.code==="Space"
-        ){
-
-            e.preventDefault();
-
-            dash();
-        }
-
-        if(
-            e.key.toLowerCase()==="q"
-        ){
-
-            emp();
-        }
-
-        if(
-            e.key.toLowerCase()==="e"
-        ){
-
-            activateShield();
-        }
-    },
-    {
-        passive:false
-    }
-);
-
-
-/* =====================================================
-   MAIN LOOP
-===================================================== */
-
-function loop(time){
-
-    requestAnimationFrame(
-        loop
-    );
-
-    const frameDt=
-        Math.min(
-            50,
-            time-lastFrame
-        );
-
-    lastFrame=time;
+function loop(){
+    requestAnimationFrame(loop);
 
     if(running){
+        updateSnake();
+        updateEnemies();
+        updateParticles();
 
-        const moveDt=
-            time-lastMove;
+        if(Math.random() < 0.03) spawnFood();
+        if(Math.random() < 0.005) spawnEnemy();
 
-        if(
-            moveDt>=getSpeed()
-        ){
-
-            moveSnake();
-
-            if(running){
-
-                moveEnemies(
-                    moveDt
-                );
-            }
-
-            lastMove=time;
+        bossSpawnTimer++;
+        if(bossSpawnTimer > 1500 && !bossActive){
+            spawnBoss();
         }
 
-        updateTimers(
-            frameDt
-        );
+        if(dashCooldown > 0) dashCooldown -= 16;
+        if(empCooldown > 0) empCooldown -= 16;
+        if(shieldTimer > 0) shieldTimer -= 16;
     }
 
-    updateParticles();
-
-    drawMap(time);
-
-    drawFood(time);
-
+    drawMap();
+    drawFoods();
     drawEnemies();
-
-    if(snake.length){
-        drawSnake();
-    }
-
-    drawDigest();
-
-    drawShield();
-
+    drawSnake();
+    drawParticles();
 }
 
 resize();
-
-updateHUD();
-
-requestAnimationFrame(
-    loop
-);
+loop();
 
 </script>
-
 </body>
 </html>
-```
