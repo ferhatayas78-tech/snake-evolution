@@ -2,9 +2,19 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+
+<meta name="viewport"
+      content="width=device-width,
+      initial-scale=1,
+      maximum-scale=1,
+      user-scalable=no,
+      viewport-fit=cover">
+
 <meta name="theme-color" content="#02050a">
-<title>Snake Evolution - Snake & Centipede Arena</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+<title>Snake Evolution - Safari Fixed Edition</title>
 
 <style>
 *{
@@ -13,85 +23,268 @@
     padding:0;
     -webkit-tap-highlight-color:transparent;
     user-select:none;
+    -webkit-user-select:none;
 }
+
 html, body{
     width:100%;
     height:100%;
     overflow:hidden;
     background:#02050a;
+    touch-action:none;
+    overscroll-behavior:none;
     font-family:-apple-system, BlinkMacSystemFont, "SF Pro Display", Arial, sans-serif;
 }
-body{ position:fixed; inset:0; }
-canvas{ position:fixed; inset:0; width:100%; height:100%; display:block; }
 
+body{
+    position:fixed;
+    inset:0;
+}
+
+canvas{
+    position:fixed;
+    inset:0;
+    width:100%;
+    height:100%;
+    display:block;
+}
+
+/* HUD */
 #hud{
     position:fixed;
     top: calc(env(safe-area-inset-top) + 6px);
-    left: 8px; right: 8px;
+    left: calc(env(safe-area-inset-left) + 8px);
+    right: calc(env(safe-area-inset-right) + 8px);
     z-index:20;
     display:flex;
+    align-items:center;
     justify-content:space-between;
     pointer-events:none;
 }
-.hudGroup{ display:flex; gap:4px; }
+
+.hudGroup{
+    display:flex;
+    gap:4px;
+    align-items:center;
+}
+
 .stat{
     padding:4px 7px;
     border-radius:8px;
-    background: rgba(3,12,21,.55);
-    border: 1px solid rgba(0,255,255,.15);
+    background: rgba(3,12,21,.65);
+    border: 1px solid rgba(0,255,255,.25);
     backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
 }
-.stat small{ display:inline-block; font-size:7px; color:#6d8290; margin-right:3px; text-transform:uppercase; }
-.stat b{ font-size:11px; color:#66ffff; }
 
+.stat small{
+    display:inline-block;
+    font-size:7px;
+    color:#8fa1ad;
+    margin-right:3px;
+    text-transform:uppercase;
+}
+
+.stat b{
+    font-size:11px;
+    color:#66ffff;
+}
+
+/* BOSS TIMER */
 #bossHud{
     position:fixed;
     top: calc(env(safe-area-inset-top) + 40px);
-    left:50%; transform:translateX(-50%);
-    z-index:30; padding:6px 16px; border-radius:20px;
-    background: rgba(255,0,85,0.2);
-    border: 1px solid rgba(255,0,85,0.6);
-    color: #ff3366; font-weight:900; font-size:13px;
-    display:none; text-shadow: 0 0 10px #ff0055;
+    left:50%;
+    transform:translateX(-50%);
+    z-index:30;
+    padding:6px 16px;
+    border-radius:20px;
+    background: rgba(255,0,85,0.3);
+    border: 1px solid rgba(255,0,85,0.8);
+    color: #ff3366;
+    font-weight:900;
+    font-size:13px;
+    letter-spacing:1px;
+    display:none;
+    text-shadow: 0 0 10px #ff0055;
+    animation: pulse 1s infinite alternate;
 }
 
+@keyframes pulse {
+    from { transform: translateX(-50%) scale(1); }
+    to { transform: translateX(-50%) scale(1.05); }
+}
+
+/* XP BAR */
+#xpBox{
+    position:fixed;
+    left:50%;
+    bottom: calc(env(safe-area-inset-bottom) + 8px);
+    transform:translateX(-50%);
+    width:min(180px,40vw);
+    z-index:20;
+    pointer-events:none;
+}
+
+#xpText{
+    text-align:center;
+    font-size:7px;
+    color:#8fa1ad;
+    margin-bottom:2px;
+}
+
+#xpBar{
+    height:4px;
+    border-radius:10px;
+    background:#0b151d;
+    overflow:hidden;
+    border:1px solid #17303a;
+}
+
+#xpFill{
+    height:100%;
+    width:0%;
+    background: linear-gradient(90deg, #00ffff, #7755ff);
+    transition:width .2s;
+}
+
+/* ABILITIES */
 #abilities{
-    position:fixed; right: 8px; bottom: 12px;
-    z-index:30; display:flex; gap:6px;
+    position:fixed;
+    right: calc(env(safe-area-inset-right) + 8px);
+    bottom: calc(env(safe-area-inset-bottom) + 12px);
+    z-index:30;
+    display:flex;
+    gap:6px;
+    pointer-events:auto;
 }
+
 .ability{
-    width:46px; height:46px; border-radius:14px;
-    border:1px solid rgba(0,255,255,.2);
-    background: rgba(5,15,25,.7); color:#7d929d;
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    font-size:15px; backdrop-filter:blur(8px);
+    width:46px;
+    height:46px;
+    border-radius:14px;
+    border:1px solid rgba(0,255,255,.3);
+    background: rgba(5,15,25,.8);
+    color:#a1b5c0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    font-size:15px;
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
 }
-.ability span{ font-size:6px; margin-top:1px; color:#71828b; }
 
+.ability span{
+    font-size:6px;
+    margin-top:1px;
+    color:#93a6b1;
+}
+
+.ability:active{
+    transform:scale(.9);
+    background: rgba(0,255,255,.3);
+}
+
+/* MESSAGES */
 #message{
-    position:fixed; top: 75px; left:50%; transform: translateX(-50%);
-    z-index:40; font-size:13px; font-weight:800; color:#fff;
-    opacity:0; pointer-events:none; transition: opacity .2s;
+    position:fixed;
+    top: calc(env(safe-area-inset-top) + 75px);
+    left:50%;
+    transform: translateX(-50%);
+    z-index:40;
+    font-size:13px;
+    font-weight:800;
+    color:#fff;
+    text-shadow: 0 0 10px currentColor;
+    opacity:0;
+    pointer-events:none;
+    white-space:nowrap;
+    transition: opacity .2s;
 }
 
+/* SCREENS */
 .screen{
-    position:fixed; inset:0; z-index:100;
-    display:flex; align-items:center; justify-content:center; padding:20px;
-    background: radial-gradient(circle at center, rgba(0,255,255,.06), rgba(1,4,9,.94) 65%);
+    position:fixed;
+    inset:0;
+    z-index:100;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    background: radial-gradient(circle at center, rgba(0,255,255,.08), rgba(1,4,9,.96) 65%);
     backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
 }
+
 .panel{
-    width:min(380px,88vw); padding:24px 18px; text-align:center;
-    border-radius:20px; border: 1px solid rgba(0,255,255,.2); background: rgba(4,12,22,.94);
+    width:min(380px,88vw);
+    padding:24px 18px;
+    text-align:center;
+    border-radius:20px;
+    border: 1px solid rgba(0,255,255,.3);
+    background: rgba(4,12,22,.96);
 }
-.panel h1{ font-size: 32px; color:#65ffff; }
+
+.panel h1{
+    font-size: clamp(26px,8vw,38px);
+    letter-spacing:2px;
+    color:#65ffff;
+    margin-bottom:2px;
+}
+
+.subtitle{
+    font-size:9px;
+    color:#7a94a2;
+    letter-spacing:2px;
+    margin-bottom:18px;
+}
+
+.panel p{
+    color:#879ca8;
+    font-size:12px;
+    line-height:1.6;
+    margin-bottom:16px;
+}
+
 .mainButton{
-    width:100%; height:48px; border:0; border-radius:14px;
-    color:white; font-size:14px; font-weight:800;
+    width:100%;
+    height:48px;
+    border:0;
+    border-radius:14px;
+    color:white;
+    font-size:14px;
+    font-weight:800;
     background: linear-gradient(135deg, #00a9aa, #6545ff);
-    margin-top:15px;
 }
-.hidden{ display:none !important; }
+
+.upgrades{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+}
+
+.upgrade{
+    width:100%;
+    padding:10px;
+    border-radius:12px;
+    border:1px solid rgba(0,255,255,.2);
+    background: rgba(10,25,38,.9);
+    color:white;
+    text-align:left;
+    font-size:12px;
+    font-weight:bold;
+}
+
+.upgrade small{
+    display:block;
+    color:#7e95a2;
+    font-weight:normal;
+}
+
+.hidden{
+    display:none !important;
+}
 </style>
 </head>
 
@@ -103,8 +296,10 @@ canvas{ position:fixed; inset:0; width:100%; height:100%; display:block; }
     <div class="hudGroup">
         <div class="stat"><small>Score</small><b id="score">0</b></div>
         <div class="stat"><small>Lvl</small><b id="level">1</b></div>
+        <div class="stat"><small>Len</small><b id="length">25</b></div>
     </div>
     <div class="hudGroup">
+        <div class="stat"><small>Mult</small><b id="combo">x1</b></div>
         <div class="stat"><small>Best</small><b id="best">0</b></div>
     </div>
 </div>
@@ -112,18 +307,22 @@ canvas{ position:fixed; inset:0; width:100%; height:100%; display:block; }
 <div id="bossHud">⚠️ MEGA PAC-MAN: <span id="bossTime">60</span>s</div>
 <div id="message"></div>
 
+<div id="xpBox">
+    <div id="xpText">XP 0 / 100</div>
+    <div id="xpBar"><div id="xpFill"></div></div>
+</div>
+
 <div id="abilities">
-    <button class="ability" onclick="dash()">⚡<span>DASH</span></button>
-    <button class="ability" onclick="activateShield()">🛡️<span>SHIELD</span></button>
-    <button class="ability" onclick="emp()">◉<span>EMP</span></button>
+    <button class="ability" id="dashBtn" ontouchstart="mobileAction('dash',event)" onclick="mobileAction('dash',event)">⚡<span>DASH</span></button>
+    <button class="ability" id="shieldBtn" ontouchstart="mobileAction('shield',event)" onclick="mobileAction('shield',event)">🛡️<span>SHIELD</span></button>
+    <button class="ability" id="empBtn" ontouchstart="mobileAction('emp',event)" onclick="mobileAction('emp',event)">◉<span>EMP</span></button>
 </div>
 
 <div id="startScreen" class="screen">
     <div class="panel">
-        <h1>SNAKE ARENA</h1>
-        <p style="color:#6d8290; font-size:12px; margin-top:10px;">
-            Düşman Yılanlar ve hızlı Çıyanlar sahada spawn olur. Mega Pac-Man 30. saniyede sahaya iner!
-        </p>
+        <h1>SNAKE</h1>
+        <div class="subtitle">ARENA EVOLUTION</div>
+        <p>Rakip Yılanlar, Çıyanlar ve Agresif Pac-Man'ler sahada! 30. saniyede gelen Dev Pac-Man Boss'una dikkat et!</p>
         <button class="mainButton" onclick="startGame()">OYUNA BAŞLA</button>
     </div>
 </div>
@@ -131,370 +330,1095 @@ canvas{ position:fixed; inset:0; width:100%; height:100%; display:block; }
 <div id="gameOver" class="screen hidden">
     <div class="panel">
         <h1>GAME OVER</h1>
-        <p id="finalScore" style="color:#aaa; margin:10px 0;"></p>
+        <p id="finalScore"></p>
         <button class="mainButton" onclick="startGame()">TEKRAR OYNA</button>
+    </div>
+</div>
+
+<div id="upgradeScreen" class="screen hidden">
+    <div class="panel">
+        <h1 style="font-size:28px">LEVEL UP</h1>
+        <p>Yılanını geliştir.</p>
+        <div class="upgrades">
+            <button class="upgrade" onclick="upgrade('speed')">⚡ SPEED<small>Hareket hızını artır</small></button>
+            <button class="upgrade" onclick="upgrade('magnet')">🧲 MAGNET<small>Yem çekim menzilini artır</small></button>
+            <button class="upgrade" onclick="upgrade('shield')">🛡️ SHIELD<small>Kalkan süresini artır</small></button>
+        </div>
     </div>
 </div>
 
 <script>
 const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d", { alpha: false });
 
-let W=0, H=0, DPR=1;
-let WORLD_WIDTH = 2500, WORLD_HEIGHT = 2500;
+// iOS Safari Donanım İvmesi Düzeltmesi
+const ctx = canvas.getContext("2d", { alpha: false, willReadFrequently: false });
+
+let W = 0, H = 0, DPR = 1;
+let WORLD_WIDTH = 2500;
+let WORLD_HEIGHT = 2500;
+
 let camX = 0, camY = 0;
+let shakeAmount = 0;
 
-const SNAKE_RADIUS = 12;
-const SEGMENT_DIST = 8;
+const SNAKE_RADIUS = 12; 
+const SEGMENT_DISTANCE = 8; 
 
-let snake = [], snakeLength = 25, angle = 0;
-let baseSpeed = 2.2;
+let baseSpeed = 2.4; 
+let turnSpeed = 0.07; 
 
+let snake = [];
+let snakeLength = 25; 
+let angle = 0; 
+
+let pacmen = [];
 let enemySnakes = [];
 let centipedes = [];
 let megaPacman = null;
+let bossTimer = 0;
+let gameTime = 0;
 
-let foods = [], particles = [];
-let running = false, score = 0, level = 1, gameTime = 0;
-let best = Number(localStorage.getItem("snakeBest") || 0);
-
-let shieldTimer = 0, dashCooldown = 0, empCooldown = 0;
-let isPointerDown = false, pointerPos = { x: 0, y: 0 };
+let foods = [];
+let obstacles = [];
+let particles = [];
 
 // Portallar
 let wormholes = {
-    entry: { x: 400, y: 400, r: 28, color: "#00aaff" },
-    exit: { x: 2000, y: 2000, r: 28, color: "#ff8800" },
-    cooldown: 0
+    entry: { x: 400, y: 400, r: 35, color: "#00d9ff" },
+    exit: { x: 2000, y: 2000, r: 35, color: "#ff7700" },
+    cooldown: 0,
+    relocateTimer: 0
 };
 
-function resize(){
-    W = window.innerWidth; H = window.innerHeight;
-    DPR = Math.min(window.devicePixelRatio || 1, 2);
-    canvas.width = Math.floor(W * DPR); canvas.height = Math.floor(H * DPR);
-    canvas.style.width = W + "px"; canvas.style.height = H + "px";
-    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-}
-window.addEventListener("resize", resize);
+let running = false;
+let score = 0, level = 1, xp = 0, nextLevelXp = 100, combo = 1;
+let best = Number(localStorage.getItem("snakeEvolutionBest") || 0);
 
-function createSnake(){
-    snake = [];
-    const startX = WORLD_WIDTH / 2, startY = WORLD_HEIGHT / 2 + 300;
-    angle = 0;
-    for(let i=0; i<snakeLength; i++){
-        snake.push({ x: startX - i * SEGMENT_DIST, y: startY });
+let speedLevel = 1, magnetLevel = 0, shieldLevel = 1;
+let shieldTimer = 0, dashCooldown = 0, empCooldown = 0;
+
+let audioCtx = null;
+let isPointerDown = false;
+let pointerPos = { x: 0, y: 0 };
+
+function initAudio(){
+    if(audioCtx) return;
+    try { 
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContextClass(); 
+    } catch(e){}
+}
+
+function sound(frequency=500, duration=.08, type="sine", volume=.035){
+    if(!audioCtx) return;
+    try{
+        if(audioCtx.state === "suspended") audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.value = frequency;
+        gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    }catch(e){}
+}
+
+function playPacmanWakaSound(pitchScale = 1){
+    if(!audioCtx) return;
+    try{
+        if(audioCtx.state === "suspended") audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "triangle";
+        
+        const now = audioCtx.currentTime;
+        osc.frequency.setValueAtTime(120 * pitchScale, now);
+        osc.frequency.linearRampToValueAtTime(280 * pitchScale, now + 0.08);
+        osc.frequency.linearRampToValueAtTime(100 * pitchScale, now + 0.16);
+
+        gain.gain.setValueAtTime(0.04, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.16);
+    }catch(e){}
+}
+
+function haptic(pattern=10){
+    if("vibrate" in navigator){
+        try{ navigator.vibrate(pattern); }catch(e){}
     }
 }
 
-// --- DÜŞMAN SPAWN MEKANİZMALARI ---
-function spawnEnemySnake(){
-    if(enemySnakes.length >= 3 || megaPacman) return;
-    let sx = Math.random() * (WORLD_WIDTH - 200) + 100;
-    let sy = Math.random() * (WORLD_HEIGHT - 200) + 100;
+function resize(){
+    W = window.innerWidth;
+    H = window.innerHeight;
     
-    let body = [];
-    for(let i=0; i<15; i++) body.push({x: sx, y: sy});
+    // iOS Safari Bellek Koruması (DPR Sınırlandırması)
+    DPR = Math.min(window.devicePixelRatio || 1, 1.5);
 
-    enemySnakes.push({
-        body: body,
-        angle: Math.random() * Math.PI * 2,
-        speed: 1.8,
-        color: "#ff3355"
-    });
+    canvas.width = Math.floor(W * DPR);
+    canvas.height = Math.floor(H * DPR);
+    canvas.style.width = W + "px";
+    canvas.style.height = H + "px";
+
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+
+    WORLD_WIDTH = Math.max(2400, W * 2.5);
+    WORLD_HEIGHT = Math.max(2400, H * 2.5);
+
+    if(obstacles.length === 0) generateMap();
 }
 
-function spawnCentipede(){
-    if(centipedes.length >= 3 || megaPacman) return;
-    let sx = Math.random() * (WORLD_WIDTH - 200) + 100;
-    let sy = Math.random() * (WORLD_HEIGHT - 200) + 100;
+window.addEventListener("resize", resize, {passive:true});
 
-    let legs = [];
-    for(let i=0; i<18; i++) legs.push({x: sx, y: sy});
-
-    centipedes.push({
-        body: legs,
-        angle: Math.random() * Math.PI * 2,
-        speed: 2.5,
-        wave: 0,
-        color: "#33ff66"
-    });
+function generateMap(){
+    obstacles = [];
+    // Engeller artırıldı (45 Adet)
+    for(let i=0; i<45; i++){
+        let ox = 150 + Math.random() * (WORLD_WIDTH - 300);
+        let oy = 150 + Math.random() * (WORLD_HEIGHT - 300);
+        if(Math.hypot(ox - WORLD_WIDTH/2, oy - WORLD_HEIGHT/2) > 350){
+            obstacles.push({ x: ox, y: oy, r: 16 + Math.random() * 22 });
+        }
+    }
+    relocateWormholes();
 }
 
-function spawnMegaPacman(){
-    if(megaPacman) return;
-    megaPacman = {
-        x: WORLD_WIDTH / 2, y: WORLD_HEIGHT / 2,
-        radius: 65, speed: 1.35, angle: 0,
-        mouthAngle: 0.2, mouthSpeed: 0.04, color: "#ff0055", bossTimer: 3600
-    };
-    enemySnakes = []; centipedes = []; // Boss gelince temizle
-    document.getElementById("bossHud").style.display = "block";
+function relocateWormholes(){
+    wormholes.entry.x = 300 + Math.random() * (WORLD_WIDTH - 600);
+    wormholes.entry.y = 300 + Math.random() * (WORLD_HEIGHT - 600);
+    wormholes.exit.x = 300 + Math.random() * (WORLD_WIDTH - 600);
+    wormholes.exit.y = 300 + Math.random() * (WORLD_HEIGHT - 600);
+    wormholes.relocateTimer = 0;
 }
 
-// --- GÜNCELLEME DÖNGÜLERİ ---
+function createSnake(){
+    snake = [];
+    const startX = WORLD_WIDTH / 2;
+    const startY = WORLD_HEIGHT / 2 + 400;
+    angle = 0;
+
+    for(let i=0; i<snakeLength; i++){
+        snake.push({
+            x: startX - i * SEGMENT_DISTANCE,
+            y: startY
+        });
+    }
+}
+
 function updateSnake(){
     if(!snake.length) return;
 
     if(isPointerDown){
         const head = snake[0];
-        const dx = pointerPos.x + camX - head.x;
-        const dy = pointerPos.y + camY - head.y;
+        const worldPointerX = pointerPos.x + camX;
+        const worldPointerY = pointerPos.y + camY;
+
+        const dx = worldPointerX - head.x;
+        const dy = worldPointerY - head.y;
+
         if(Math.hypot(dx, dy) > 15){
-            let targetAngle = Math.atan2(dy, dx);
+            const targetAngle = Math.atan2(dy, dx);
+
             let diff = targetAngle - angle;
             while (diff < -Math.PI) diff += Math.PI * 2;
             while (diff > Math.PI) diff -= Math.PI * 2;
-            angle += Math.max(-0.07, Math.min(0.07, diff));
+
+            const currentTurnSpeed = turnSpeed + (speedLevel * 0.003);
+            angle += Math.max(-currentTurnSpeed, Math.min(currentTurnSpeed, diff));
         }
     }
 
-    let newX = snake[0].x + Math.cos(angle) * baseSpeed;
-    let newY = snake[0].y + Math.sin(angle) * baseSpeed;
+    const currentSpeed = baseSpeed + ((speedLevel - 1) * 0.25);
+    
+    let newX = snake[0].x + Math.cos(angle) * currentSpeed;
+    let newY = snake[0].y + Math.sin(angle) * currentSpeed;
 
     newX = Math.max(SNAKE_RADIUS, Math.min(WORLD_WIDTH - SNAKE_RADIUS, newX));
     newY = Math.max(SNAKE_RADIUS, Math.min(WORLD_HEIGHT - SNAKE_RADIUS, newY));
 
     const newHead = { x: newX, y: newY };
-    camX = newHead.x - W / 2; camY = newHead.y - H / 2;
+
+    camX = newHead.x - W / 2;
+    camY = newHead.y - H / 2;
+
+    for(const obs of obstacles){
+        if(Math.hypot(newHead.x - obs.x, newHead.y - obs.y) < SNAKE_RADIUS + obs.r){
+            if(shieldTimer > 0){
+                shieldTimer = 0;
+                angle += Math.PI;
+                showMessage("🛡️ KALKAN ENGELİ ENGELLEDİ!");
+            } else {
+                gameOver();
+                return;
+            }
+        }
+    }
 
     snake.unshift(newHead);
     while(snake.length > snakeLength) snake.pop();
 
-    // Portal Geçişi
-    if(wormholes.cooldown > 0) wormholes.cooldown--;
-    if(wormholes.cooldown === 0){
-        if(Math.hypot(newHead.x - wormholes.entry.x, newHead.y - wormholes.entry.y) < wormholes.entry.r){
-            newHead.x = wormholes.exit.x + Math.cos(angle) * 35;
-            newHead.y = wormholes.exit.y + Math.sin(angle) * 35;
-            wormholes.cooldown = 60;
-        }
-    }
+    checkFoodCollision();
+}
 
-    checkFoodCollisions();
+function spawnEnemySnake(){
+    if(enemySnakes.length >= 4 || megaPacman) return;
+    let sx = 150 + Math.random() * (WORLD_WIDTH - 300);
+    let sy = 150 + Math.random() * (WORLD_HEIGHT - 300);
+    let body = [];
+    for(let i=0; i<20; i++) body.push({x: sx, y: sy});
+
+    enemySnakes.push({
+        body: body,
+        angle: Math.random() * Math.PI * 2,
+        speed: 2.0,
+        color: "#ff2a55"
+    });
 }
 
 function updateEnemySnakes(){
+    if(!snake.length) return;
     const head = snake[0];
+
     for(let i = enemySnakes.length - 1; i >= 0; i--){
         let es = enemySnakes[i];
         let esHead = es.body[0];
 
-        // Rastgele/Yeme Doğru Yönlenme
-        es.angle += (Math.random() - 0.5) * 0.1;
+        es.angle += (Math.random() - 0.5) * 0.12;
         esHead.x += Math.cos(es.angle) * es.speed;
         esHead.y += Math.sin(es.angle) * es.speed;
 
-        // Beden takibi
+        esHead.x = Math.max(20, Math.min(WORLD_WIDTH - 20, esHead.x));
+        esHead.y = Math.max(20, Math.min(WORLD_HEIGHT - 20, esHead.y));
+
         for(let j = es.body.length - 1; j > 0; j--){
-            let prev = es.body[j - 1];
-            let curr = es.body[j];
-            let dx = prev.x - curr.x, dy = prev.y - curr.y;
-            let dist = Math.hypot(dx, dy);
+            let prev = es.body[j - 1], curr = es.body[j];
+            let dist = Math.hypot(prev.x - curr.x, prev.y - curr.y);
             if(dist > 6){
-                curr.x += (dx / dist) * (dist - 6);
-                curr.y += (dy / dist) * (dist - 6);
+                curr.x += ((prev.x - curr.x)/dist) * (dist - 6);
+                curr.y += ((prev.y - curr.y)/dist) * (dist - 6);
             }
         }
 
-        // Çarpışma Kontrolü
-        if(Math.hypot(head.x - esHead.x, head.y - esHead.y) < SNAKE_RADIUS * 2){
-            if(shieldTimer <= 0) { gameOver(); return; }
+        if(Math.hypot(head.x - esHead.x, head.y - esHead.y) < SNAKE_RADIUS * 1.8){
+            if(shieldTimer > 0){
+                shieldTimer = 0;
+                createExplosion(esHead.x, esHead.y, "#ff2a55", 20);
+                enemySnakes.splice(i, 1);
+                score += 200;
+                gainXP(40);
+                showMessage("🛡️ KALKAN YILANI YOK ETTİ!");
+            } else {
+                gameOver();
+                return;
+            }
         }
     }
 }
 
+function spawnCentipede(){
+    if(centipedes.length >= 4 || megaPacman) return;
+    let sx = 150 + Math.random() * (WORLD_WIDTH - 300);
+    let sy = 150 + Math.random() * (WORLD_HEIGHT - 300);
+    let body = [];
+    for(let i=0; i<18; i++) body.push({x: sx, y: sy});
+
+    centipedes.push({
+        body: body,
+        angle: Math.random() * Math.PI * 2,
+        speed: 2.5,
+        wave: 0,
+        color: "#00ff66"
+    });
+}
+
 function updateCentipedes(){
+    if(!snake.length) return;
     const head = snake[0];
+
     for(let i = centipedes.length - 1; i >= 0; i--){
         let c = centipedes[i];
         let cHead = c.body[0];
 
-        c.wave += 0.2;
-        c.angle += Math.sin(c.wave) * 0.05;
-        
+        c.wave += 0.25;
+        c.angle += Math.sin(c.wave) * 0.08;
         cHead.x += Math.cos(c.angle) * c.speed;
         cHead.y += Math.sin(c.angle) * c.speed;
 
-        // Beden takibi
+        cHead.x = Math.max(20, Math.min(WORLD_WIDTH - 20, cHead.x));
+        cHead.y = Math.max(20, Math.min(WORLD_HEIGHT - 20, cHead.y));
+
         for(let j = c.body.length - 1; j > 0; j--){
             let prev = c.body[j - 1], curr = c.body[j];
             let dist = Math.hypot(prev.x - curr.x, prev.y - curr.y);
-            if(dist > 7){
-                curr.x += ((prev.x - curr.x)/dist) * (dist - 7);
-                curr.y += ((prev.y - curr.y)/dist) * (dist - 7);
+            if(dist > 6){
+                curr.x += ((prev.x - curr.x)/dist) * (dist - 6);
+                curr.y += ((prev.y - curr.y)/dist) * (dist - 6);
             }
         }
 
-        if(Math.hypot(head.x - cHead.x, head.y - cHead.y) < SNAKE_RADIUS + 10){
-            if(shieldTimer <= 0) { gameOver(); return; }
+        if(Math.hypot(head.x - cHead.x, head.y - cHead.y) < SNAKE_RADIUS + 8){
+            if(shieldTimer > 0){
+                shieldTimer = 0;
+                createExplosion(cHead.x, cHead.y, "#00ff66", 20);
+                centipedes.splice(i, 1);
+                score += 250;
+                gainXP(50);
+                showMessage("🛡️ KALKAN ÇIYANI YOK ETTİ!");
+            } else {
+                gameOver();
+                return;
+            }
         }
     }
+}
+
+function updateWormholes(){
+    wormholes.relocateTimer++;
+    if(wormholes.cooldown > 0) wormholes.cooldown--;
+
+    if(wormholes.relocateTimer > 1000){
+        relocateWormholes();
+        createExplosion(wormholes.entry.x, wormholes.entry.y, "#00d9ff", 15);
+        createExplosion(wormholes.exit.x, wormholes.exit.y, "#ff7700", 15);
+        showMessage("🌀 PORTALLAR YENİ KONUMA IŞINLANDI!");
+    }
+
+    if(!snake.length || wormholes.cooldown > 0) return;
+
+    const head = snake[0];
+
+    if(Math.hypot(head.x - wormholes.entry.x, head.y - wormholes.entry.y) < wormholes.entry.r){
+        head.x = wormholes.exit.x + Math.cos(angle) * 45;
+        head.y = wormholes.exit.y + Math.sin(angle) * 45;
+        wormholes.cooldown = 60;
+        sound(800, 0.15, "sine", 0.08);
+        haptic(20);
+        createExplosion(wormholes.entry.x, wormholes.entry.y, "#00d9ff", 20);
+        createExplosion(wormholes.exit.x, wormholes.exit.y, "#ff7700", 20);
+        showMessage("🌀 PORTALDAN IŞINLANDIN!");
+    }
+    else if(Math.hypot(head.x - wormholes.exit.x, head.y - wormholes.exit.y) < wormholes.exit.r){
+        head.x = wormholes.entry.x + Math.cos(angle) * 45;
+        head.y = wormholes.entry.y + Math.sin(angle) * 45;
+        wormholes.cooldown = 60;
+        sound(800, 0.15, "sine", 0.08);
+        haptic(20);
+        createExplosion(wormholes.exit.x, wormholes.exit.y, "#ff7700", 20);
+        createExplosion(wormholes.entry.x, wormholes.entry.y, "#00d9ff", 20);
+        showMessage("🌀 PORTALDAN IŞINLANDIN!");
+    }
+}
+
+function drawWormholes(){
+    const time = Date.now() * 0.004;
+    
+    [wormholes.entry, wormholes.exit].forEach(portal => {
+        ctx.save();
+        ctx.translate(portal.x, portal.y);
+
+        // Safari Donanımlı Gradient Efekti
+        const gradient = ctx.createRadialGradient(0, 0, 5, 0, 0, portal.r * 1.8);
+        gradient.addColorStop(0, portal.color);
+        gradient.addColorStop(0.6, portal.color + "88");
+        gradient.addColorStop(1, "rgba(0,0,0,0)");
+        
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(0, 0, portal.r * 1.8, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.rotate(time);
+        ctx.strokeStyle = portal.color;
+        ctx.lineWidth = 4;
+        ctx.setLineDash([12, 6]);
+        ctx.beginPath();
+        ctx.arc(0, 0, portal.r, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.rotate(-time * 2);
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 2;
+        ctx.setLineDash([6, 6]);
+        ctx.beginPath();
+        ctx.arc(0, 0, portal.r * 0.5, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.restore();
+    });
+}
+
+function spawnFood(){
+    if(foods.length >= 60) return;
+    foods.push({
+        x: 50 + Math.random() * (WORLD_WIDTH - 100),
+        y: 50 + Math.random() * (WORLD_HEIGHT - 100),
+        r: 7,
+        val: 10
+    });
+}
+
+function checkFoodCollision(){
+    const head = snake[0];
+
+    for(let i = foods.length - 1; i >= 0; i--){
+        const f = foods[i];
+        const dist = Math.hypot(head.x - f.x, head.y - f.y);
+
+        if(magnetLevel > 0 && dist < 150 + (magnetLevel * 35)){
+            f.x += (head.x - f.x) * 0.1;
+            f.y += (head.y - f.y) * 0.1;
+        }
+
+        if(dist < SNAKE_RADIUS + f.r){
+            foods.splice(i, 1);
+            eatFood(f.val || 10);
+        }
+    }
+}
+
+function eatFood(val = 10){
+    score += val * combo;
+    snakeLength += Math.max(1, Math.floor(val / 5)); 
+    combo = Math.min(10, combo + 1);
+
+    createExplosion(snake[0].x, snake[0].y, "#00ffff", 6);
+    sound(600 + combo * 30, .08, "sine", .04);
+    haptic(8);
+    updateHUD();
+}
+
+function spawnPacman(){
+    if(pacmen.length >= 4 || megaPacman) return; 
+
+    pacmen.push({
+        x: Math.random() < 0.5 ? 50 : WORLD_WIDTH - 50,
+        y: Math.random() * WORLD_HEIGHT,
+        radius: 20,
+        speed: 1.5,
+        angle: Math.random() * Math.PI * 2,
+        mouthAngle: 0.2,
+        mouthSpeed: 0.04,
+        chargeTimer: 0,
+        isCharging: false,
+        isTired: false,
+        tiredTimer: 0,
+        warnTimer: 0,
+        color: "#ffe600"
+    });
+}
+
+function updatePacmen(){
+    if(!snake.length) return;
+    const head = snake[0];
+
+    for(let i = pacmen.length - 1; i >= 0; i--){
+        const p = pacmen[i];
+
+        p.mouthAngle += p.mouthSpeed;
+        if(p.mouthAngle > 0.45 || p.mouthAngle < 0.05){
+            p.mouthSpeed = -p.mouthSpeed;
+            if(p.mouthAngle > 0.4) playPacmanWakaSound(1);
+        }
+
+        const distToHead = Math.hypot(head.x - p.x, head.y - p.y);
+
+        if(distToHead < 420 && !p.isTired){
+            const dx = head.x - p.x;
+            const dy = head.y - p.y;
+            p.angle = Math.atan2(dy, dx);
+            
+            p.chargeTimer++;
+            
+            // Agresif Kırmızı Renk Güncellemesi
+            if(p.chargeTimer > 180 && !p.isCharging){
+                p.warnTimer++;
+                p.color = (Math.floor(p.warnTimer / 6) % 2 === 0) ? "#ff0033" : "#ffe600";
+                
+                if(p.warnTimer > 45){
+                    p.isCharging = true;
+                    p.color = "#ff0033";
+                    shakeAmount = 6;
+                    sound(200, 0.2, "sawtooth", 0.06);
+
+                    setTimeout(() => {
+                        if(p){
+                            p.isCharging = false;
+                            p.isTired = true;
+                            p.tiredTimer = 140;
+                            p.chargeTimer = 0;
+                            p.warnTimer = 0;
+                            p.color = "#888800";
+                        }
+                    }, 900);
+                }
+            }
+        }
+
+        if(p.isTired){
+            p.tiredTimer--;
+            if(p.tiredTimer <= 0){
+                p.isTired = false;
+                p.color = "#ffe600";
+            }
+        }
+
+        let currentSpeed = p.speed;
+        if(p.isCharging) currentSpeed = p.speed * 2.2;
+        if(p.isTired) currentSpeed = p.speed * 0.4;
+
+        p.x += Math.cos(p.angle) * currentSpeed;
+        p.y += Math.sin(p.angle) * currentSpeed;
+
+        if(distToHead < SNAKE_RADIUS + p.radius){
+            if(shieldTimer > 0){
+                shieldTimer = 0;
+                killPacman(i);
+            } else {
+                gameOver();
+                return;
+            }
+        }
+    }
+}
+
+function killPacman(index){
+    const p = pacmen[index];
+    if(!p) return;
+
+    score += 150;
+    gainXP(30);
+
+    for(let k = 0; k < 10; k++){
+        foods.push({
+            x: p.x + (Math.random() * 40 - 20),
+            y: p.y + (Math.random() * 40 - 20),
+            r: 8, val: 20
+        });
+    }
+
+    createExplosion(p.x, p.y, "#ffe600", 25);
+    pacmen.splice(index, 1);
+}
+
+function spawnMegaPacman(){
+    if(megaPacman) return;
+
+    megaPacman = {
+        x: WORLD_WIDTH / 2,
+        y: WORLD_HEIGHT / 2,
+        radius: 65,            
+        speed: 1.45,
+        angle: 0,
+        mouthAngle: 0.2,
+        mouthSpeed: 0.05,
+        color: "#ff0055",
+        chargeTimer: 0,
+        isCharging: false
+    };
+
+    bossTimer = 3600; 
+    pacmen = []; 
+    enemySnakes = [];
+    centipedes = [];
+    shakeAmount = 25;
+
+    sound(100, 0.5, "sawtooth", 0.1);
+    haptic([100, 50, 100]);
+    showMessage("⚠️ DEV MEGA PAC-MAN UYANDI!");
+    document.getElementById("bossHud").style.display = "block";
 }
 
 function updateMegaPacman(){
     if(!megaPacman) return;
-    let p = megaPacman;
-    p.bossTimer--;
 
-    document.getElementById("bossTime").textContent = Math.ceil(p.bossTimer / 60);
-    if(p.bossTimer <= 0){
-        megaPacman = null;
-        document.getElementById("bossHud").style.display = "none";
-        score += 1000;
+    bossTimer--;
+    const secondsLeft = Math.ceil(bossTimer / 60);
+    document.getElementById("bossTime").textContent = secondsLeft;
+
+    if(bossTimer <= 0){
+        killMegaPacman(true);
         return;
     }
 
     const head = snake[0];
-    let dx = head.x - p.x, dy = head.y - p.y;
-    p.angle = Math.atan2(dy, dx);
+    const dx = head.x - megaPacman.x;
+    const dy = head.y - megaPacman.y;
+    const dist = Math.hypot(dx, dy);
 
-    p.x += Math.cos(p.angle) * p.speed;
-    p.y += Math.sin(p.angle) * p.speed;
-
-    p.mouthAngle += p.mouthSpeed;
-    if(p.mouthAngle > 0.45 || p.mouthAngle < 0.05) p.mouthSpeed = -p.mouthSpeed;
-
-    if(Math.hypot(dx, dy) < SNAKE_RADIUS + p.radius){
-        if(shieldTimer <= 0) { gameOver(); return; }
+    megaPacman.mouthAngle += megaPacman.mouthSpeed;
+    if(megaPacman.mouthAngle > 0.45 || megaPacman.mouthAngle < 0.05){
+        megaPacman.mouthSpeed = -megaPacman.mouthSpeed;
+        if(megaPacman.mouthAngle > 0.4) playPacmanWakaSound(0.5); 
     }
-}
 
-function checkFoodCollisions(){
-    const head = snake[0];
-    for(let i = foods.length - 1; i >= 0; i--){
-        if(Math.hypot(head.x - foods[i].x, head.y - foods[i].y) < SNAKE_RADIUS + 8){
-            foods.splice(i, 1);
-            score += 10;
-            snakeLength += 1;
-            document.getElementById("score").textContent = score;
+    megaPacman.angle = Math.atan2(dy, dx);
+
+    if(dist < 500){
+        const pullFactor = (1 - dist / 500) * 0.9;
+        head.x -= Math.cos(megaPacman.angle) * pullFactor;
+        head.y -= Math.sin(megaPacman.angle) * pullFactor;
+    }
+
+    megaPacman.chargeTimer++;
+    if(megaPacman.chargeTimer > 600){ 
+        megaPacman.isCharging = true;
+        megaPacman.color = "#ffea00";
+        shakeAmount = 8;
+
+        setTimeout(() => {
+            if(megaPacman){
+                megaPacman.isCharging = false;
+                megaPacman.color = "#ff0055";
+                megaPacman.chargeTimer = 0;
+            }
+        }, 1200);
+    }
+
+    let speed = megaPacman.speed;
+    if(megaPacman.isCharging) speed *= 2.0;
+
+    megaPacman.x += Math.cos(megaPacman.angle) * speed;
+    megaPacman.y += Math.sin(megaPacman.angle) * speed;
+
+    if(dist < SNAKE_RADIUS + megaPacman.radius){
+        if(shieldTimer > 0){
+            shieldTimer = 0;
+            angle += Math.PI;
+            showMessage("🛡️ KALKAN MEGA PAC-MAN'İ ENGELLEDİ!");
+        } else {
+            gameOver();
+            return;
         }
     }
 }
 
-function spawnFood(){
-    if(foods.length < 50){
-        foods.push({ x: Math.random() * WORLD_WIDTH, y: Math.random() * WORLD_HEIGHT });
+function killMegaPacman(survived = false){
+    if(!megaPacman) return;
+
+    document.getElementById("bossHud").style.display = "none";
+    shakeAmount = 30;
+
+    if(survived){
+        score += 1000;
+        gainXP(100);
+        showMessage("🎉 MEGA PAC-MAN'DEN KAÇTIN! (+1000 SKOR)");
+        
+        for(let k = 0; k < 30; k++){
+            foods.push({
+                x: megaPacman.x + (Math.random() * 180 - 90),
+                y: megaPacman.y + (Math.random() * 180 - 90),
+                r: 10, val: 30
+            });
+        }
     }
+
+    createExplosion(megaPacman.x, megaPacman.y, "#ff0055", 60);
+    sound(150, .5, "square", .12);
+    
+    megaPacman = null;
+    gameTime = 0;
 }
 
-// --- ÇİZİM İŞLEMLERİ ---
-function drawMap(){
-    ctx.fillStyle = "#02050a"; ctx.fillRect(0, 0, W, H);
+function drawMegaPacman(){
+    if(!megaPacman) return;
+    const p = megaPacman;
+
     ctx.save();
-    ctx.translate(-camX, -camY);
+    
+    // Görkemli Safari Uyumlu Parıltı (Glow) Efekti
+    ctx.shadowBlur = 30;
+    ctx.shadowColor = p.color;
 
-    // Çerçeve
-    ctx.strokeStyle = "rgba(0,255,255,0.3)"; ctx.lineWidth = 4;
-    ctx.strokeRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+    const glow = ctx.createRadialGradient(p.x, p.y, p.radius * 0.2, p.x, p.y, p.radius * 1.8);
+    glow.addColorStop(0, p.color);
+    glow.addColorStop(1, "rgba(255,0,85,0)");
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.radius * 1.8, 0, Math.PI * 2);
+    ctx.fill();
 
-    // Portallar
-    ctx.fillStyle = wormholes.entry.color;
-    ctx.beginPath(); ctx.arc(wormholes.entry.x, wormholes.entry.y, wormholes.entry.r, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = wormholes.exit.color;
-    ctx.beginPath(); ctx.arc(wormholes.exit.x, wormholes.exit.y, wormholes.exit.r, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = p.color;
+    ctx.beginPath();
+    ctx.arc(
+        p.x, p.y, p.radius,
+        p.angle + p.mouthAngle * Math.PI,
+        p.angle + (2 - p.mouthAngle) * Math.PI
+    );
+    ctx.lineTo(p.x, p.y);
+    ctx.fill();
 
-    // Yemler
-    ctx.fillStyle = "#66ffff";
-    for(let f of foods){
-        ctx.beginPath(); ctx.arc(f.x, f.y, 4, 0, Math.PI*2); ctx.fill();
-    }
-
-    // Oyuncu Yılan
-    for(let i=snake.length-1; i>=0; i--){
-        ctx.fillStyle = i === 0 ? "#ffffff" : "#00ffcc";
-        ctx.beginPath(); ctx.arc(snake[i].x, snake[i].y, SNAKE_RADIUS, 0, Math.PI*2); ctx.fill();
-    }
-
-    // Düşman Yılanlar
-    for(let es of enemySnakes){
-        ctx.fillStyle = es.color;
-        for(let b of es.body){
-            ctx.beginPath(); ctx.arc(b.x, b.y, SNAKE_RADIUS - 2, 0, Math.PI*2); ctx.fill();
-        }
-    }
-
-    // Çıyanlar
-    for(let c of centipedes){
-        ctx.fillStyle = c.color;
-        for(let j=0; j<c.body.length; j++){
-            let b = c.body[j];
-            ctx.beginPath(); ctx.arc(b.x, b.y, 8, 0, Math.PI*2); ctx.fill();
-            // Bacaklar
-            ctx.strokeStyle = "#33ff66"; ctx.lineWidth = 2;
-            ctx.beginPath(); ctx.moveTo(b.x - 10, b.y); ctx.lineTo(b.x + 10, b.y); ctx.stroke();
-        }
-    }
-
-    // Mega Pacman
-    if(megaPacman){
-        let p = megaPacman;
-        ctx.fillStyle = p.color;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, p.angle + p.mouthAngle * Math.PI, p.angle + (2 - p.mouthAngle) * Math.PI);
-        ctx.lineTo(p.x, p.y);
-        ctx.fill();
-    }
+    ctx.fillStyle = "#ffffff";
+    const eyeAngle = p.angle - Math.PI / 4;
+    ctx.beginPath();
+    ctx.arc(p.x + Math.cos(eyeAngle) * 30, p.y + Math.sin(eyeAngle) * 30, 8, 0, Math.PI * 2);
+    ctx.fill();
 
     ctx.restore();
 }
 
-// --- KONTROLLER & DÖNGÜ ---
+function drawPacmen(){
+    for(const p of pacmen){
+        ctx.save();
+        
+        // Agresif Pac-Man Kırmızı Parıltı Efekti
+        if(p.isCharging || p.color === "#ff0033"){
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = "#ff0033";
+        } else {
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = "#ffe600";
+        }
+
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(
+            p.x, p.y, p.radius,
+            p.angle + p.mouthAngle * Math.PI,
+            p.angle + (2 - p.mouthAngle) * Math.PI
+        );
+        ctx.lineTo(p.x, p.y);
+        ctx.fill();
+        ctx.restore();
+    }
+}
+
+function drawEnemySnakes(){
+    for(const es of enemySnakes){
+        for(let i=es.body.length-1; i>=0; i--){
+            let b = es.body[i];
+            ctx.fillStyle = i === 0 ? "#ffffff" : es.color;
+            ctx.beginPath();
+            ctx.arc(b.x, b.y, SNAKE_RADIUS - 2, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+}
+
+function drawCentipedes(){
+    for(const c of centipedes){
+        for(let j=0; j<c.body.length; j++){
+            let b = c.body[j];
+            ctx.fillStyle = c.color;
+            ctx.beginPath();
+            ctx.arc(b.x, b.y, 8, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.strokeStyle = "#00ff66";
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(b.x - 10, b.y);
+            ctx.lineTo(b.x + 10, b.y);
+            ctx.stroke();
+        }
+    }
+}
+
+function createExplosion(x, y, color, count){
+    for(let i=0; i<count; i++){
+        const a = Math.random() * Math.PI * 2;
+        const spd = 1 + Math.random() * 5;
+        particles.push({
+            x, y, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd,
+            life: 1, size: 2 + Math.random() * 4, color
+        });
+    }
+}
+
+function updateParticles(){
+    for(let i = particles.length - 1; i >= 0; i--){
+        const p = particles[i];
+        p.x += p.vx; p.y += p.vy;
+        p.life -= 0.03;
+        if(p.life <= 0) particles.splice(i, 1);
+    }
+}
+
+function drawMap(){
+    ctx.fillStyle = "#02050a";
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.save();
+
+    let offsetX = 0, offsetY = 0;
+    if(shakeAmount > 0){
+        offsetX = (Math.random() - 0.5) * shakeAmount;
+        offsetY = (Math.random() - 0.5) * shakeAmount;
+        shakeAmount *= 0.9; 
+        if(shakeAmount < 0.5) shakeAmount = 0;
+    }
+
+    ctx.translate(-camX + offsetX, -camY + offsetY);
+
+    ctx.strokeStyle = "rgba(0,255,255,0.05)";
+    ctx.lineWidth = 1;
+    const gridSize = 100;
+    for(let x=0; x<WORLD_WIDTH; x+=gridSize){
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, WORLD_HEIGHT); ctx.stroke();
+    }
+    for(let y=0; y<WORLD_HEIGHT; y+=gridSize){
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(WORLD_WIDTH, y); ctx.stroke();
+    }
+
+    ctx.strokeStyle = "rgba(0, 255, 255, 0.5)";
+    ctx.lineWidth = 6;
+    ctx.strokeRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+
+    for(const obs of obstacles){
+        ctx.fillStyle = "rgba(15,25,45,.95)";
+        ctx.beginPath();
+        ctx.arc(obs.x, obs.y, obs.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(0,255,255,.5)";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    }
+
+    drawWormholes();
+    drawFoods();
+    drawPacmen();
+    drawEnemySnakes();
+    drawCentipedes();
+    drawMegaPacman();
+    drawSnake();
+    drawParticles();
+
+    ctx.restore();
+}
+
+function drawSnake(){
+    if(!snake.length) return;
+
+    ctx.save();
+    // Yılan Işıltı Efekti (Safari Destekli Glow)
+    ctx.shadowBlur = 12;
+    ctx.shadowColor = "#00ffff";
+
+    for(let i = snake.length - 1; i >= 0; i--){
+        const p = snake[i];
+        const ratio = i / snake.length;
+        const radius = SNAKE_RADIUS * (1 - ratio * 0.3);
+
+        ctx.fillStyle = i === 0 ? "#ffffff" : `hsl(${180 + ratio * 50}, 100%, 50%)`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    const head = snake[0];
+    const eyeOffset = 5;
+    ctx.fillStyle = "#02050a";
+    ctx.beginPath();
+    ctx.arc(head.x + Math.cos(angle - 0.5) * eyeOffset, head.y + Math.sin(angle - 0.5) * eyeOffset, 2.5, 0, Math.PI * 2);
+    ctx.arc(head.x + Math.cos(angle + 0.5) * eyeOffset, head.y + Math.sin(angle + 0.5) * eyeOffset, 2.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+}
+
+function drawFoods(){
+    ctx.save();
+    ctx.shadowBlur = 8;
+    ctx.shadowColor = "#00ffff";
+
+    for(const f of foods){
+        ctx.fillStyle = f.val > 15 ? "#ffcc00" : "#66ffff";
+        ctx.beginPath();
+        ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    ctx.restore();
+}
+
+function drawParticles(){
+    for(const p of particles){
+        ctx.globalAlpha = p.life;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+    }
+}
+
+function gainXP(amount){
+    xp += amount;
+    if(xp >= nextLevelXp){
+        xp -= nextLevelXp;
+        level++;
+        nextLevelXp = Math.floor(nextLevelXp * 1.5); 
+        running = false;
+        isPointerDown = false;
+        document.getElementById("upgradeScreen").classList.remove("hidden");
+    }
+    updateHUD();
+}
+
+function upgrade(type){
+    if(type === 'speed') speedLevel++;
+    if(type === 'magnet') magnetLevel++;
+    if(type === 'shield') shieldLevel++;
+
+    document.getElementById("upgradeScreen").classList.add("hidden");
+    running = true;
+}
+
 function dash(){
-    if(dashCooldown > 0) return;
-    baseSpeed = 4.5; dashCooldown = 300;
-    setTimeout(() => baseSpeed = 2.2, 400);
+    if(!running || dashCooldown > 0) return;
+    dashCooldown = 1000;
+    baseSpeed *= 1.8;
+    setTimeout(() => {
+        if(running) baseSpeed /= 1.8;
+    }, 400);
+    createExplosion(snake[0].x, snake[0].y, "#ffffff", 12);
 }
-function activateShield(){ shieldTimer = 180; }
-function emp(){ enemySnakes = []; centipedes = []; }
 
-window.addEventListener("touchstart", e => { isPointerDown = true; updatePointer(e); });
-window.addEventListener("touchmove", updatePointer);
-window.addEventListener("touchend", () => isPointerDown = false);
-window.addEventListener("mousedown", e => { isPointerDown = true; updatePointer(e); });
-window.addEventListener("mousemove", updatePointer);
-window.addEventListener("mouseup", () => isPointerDown = false);
-
-function updatePointer(e){
-    let clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    let clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    pointerPos = { x: clientX, y: clientY };
+function activateShield(){
+    if(!running || shieldTimer > 0) return;
+    shieldTimer = 3000 * shieldLevel;
+    showMessage("🛡️ SHIELD ACTIVATED");
 }
+
+function emp(){
+    if(!running || empCooldown > 0) return;
+    empCooldown = 4000;
+    
+    for(let i = pacmen.length - 1; i >= 0; i--){
+        killPacman(i);
+    }
+    enemySnakes = [];
+    centipedes = [];
+    
+    createExplosion(snake[0].x, snake[0].y, "#7c5cff", 40);
+    showMessage("◉ EMP PULSE!");
+}
+
+function mobileAction(act, e){
+    if(e) { e.preventDefault(); e.stopPropagation(); }
+    initAudio();
+    if(act === 'dash') dash();
+    if(act === 'shield') activateShield();
+    if(act === 'emp') emp();
+}
+
+function pointerStart(e){
+    if(e.target.closest("#abilities") || e.target.closest(".screen")) return;
+    initAudio();
+    isPointerDown = true;
+    pointerMove(e);
+}
+
+function pointerMove(e){
+    if(!isPointerDown) return;
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    
+    const rect = canvas.getBoundingClientRect();
+    pointerPos = {
+        x: clientX - rect.left,
+        y: clientY - rect.top
+    };
+}
+
+function pointerEnd(){
+    isPointerDown = false;
+}
+
+window.addEventListener("touchstart", pointerStart, {passive:false});
+window.addEventListener("touchmove", pointerMove, {passive:false});
+window.addEventListener("touchend", pointerEnd, {passive:false});
+
+window.addEventListener("mousedown", pointerStart);
+window.addEventListener("mousemove", pointerMove);
+window.addEventListener("mouseup", pointerEnd);
 
 function startGame(){
-    score = 0; gameTime = 0; snakeLength = 25;
-    enemySnakes = []; centipedes = []; megaPacman = null; foods = [];
+    initAudio();
+    
+    score = 0; level = 1; xp = 0; nextLevelXp = 100; combo = 1;
+    snakeLength = 25; gameTime = 0;
+    
+    speedLevel = 1; magnetLevel = 0; shieldLevel = 1;
+    baseSpeed = 2.4; shieldTimer = 0; dashCooldown = 0; empCooldown = 0;
+
+    foods = []; pacmen = []; enemySnakes = []; centipedes = []; megaPacman = null; particles = [];
+
+    generateMap();
     createSnake();
     running = true;
+
+    document.getElementById("bossHud").style.display = "none";
     document.getElementById("startScreen").classList.add("hidden");
     document.getElementById("gameOver").classList.add("hidden");
-    document.getElementById("bossHud").style.display = "none";
+    document.getElementById("upgradeScreen").classList.add("hidden");
+
+    updateHUD();
 }
 
 function gameOver(){
     running = false;
-    if(score > best){ best = score; localStorage.setItem("snakeBest", best); }
-    document.getElementById("finalScore").textContent = "Skor: " + score;
+    isPointerDown = false;
+    shakeAmount = 25;
+    document.getElementById("bossHud").style.display = "none";
+    if(score > best){
+        best = score;
+        localStorage.setItem("snakeEvolutionBest", best);
+    }
+
+    document.getElementById("finalScore").innerHTML = `Skor: <b>${score}</b><br>Level: <b>${level}</b>`;
     document.getElementById("gameOver").classList.remove("hidden");
+}
+
+function updateHUD(){
+    document.getElementById("score").textContent = score;
+    document.getElementById("level").textContent = level;
+    document.getElementById("length").textContent = snakeLength;
+    document.getElementById("combo").textContent = "x" + combo;
+    document.getElementById("best").textContent = best;
+    document.getElementById("xpText").textContent = "XP " + xp + " / " + nextLevelXp;
+    document.getElementById("xpFill").style.width = Math.min(100, (xp / nextLevelXp) * 100) + "%";
+}
+
+function showMessage(txt){
+    const el = document.getElementById("message");
+    el.textContent = txt;
+    el.style.opacity = "1";
+    setTimeout(() => el.style.opacity = "0", 1600);
 }
 
 function loop(){
     requestAnimationFrame(loop);
+
     if(running){
         gameTime++;
+
         updateSnake();
+        updateWormholes();
+        updatePacmen();
         updateEnemySnakes();
         updateCentipedes();
         updateMegaPacman();
+        updateParticles();
 
-        if(Math.random() < 0.05) spawnFood();
-        if(Math.random() < 0.005) spawnEnemySnake();
-        if(Math.random() < 0.005) spawnCentipede();
+        if(Math.random() < 0.08) spawnFood();
+        if(Math.random() < 0.015) spawnPacman(); 
+        if(Math.random() < 0.012) spawnEnemySnake();
+        if(Math.random() < 0.012) spawnCentipede();
 
-        if(gameTime === 1800) spawnMegaPacman(); // 30. saniye Boss
+        if(gameTime === 1800){
+            spawnMegaPacman();
+        }
 
-        if(shieldTimer > 0) shieldTimer--;
-        if(dashCooldown > 0) dashCooldown--;
+        if(dashCooldown > 0) dashCooldown -= 16;
+        if(empCooldown > 0) empCooldown -= 16;
+        if(shieldTimer > 0) shieldTimer -= 16;
     }
+
     drawMap();
 }
 
