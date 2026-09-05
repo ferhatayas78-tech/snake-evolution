@@ -15,7 +15,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Snake Evolution">
 
-<title>Snake Evolution - Fixed Reset & Smooth iOS</title>
+<title>Snake Evolution - Action XP & Smooth Gameplay</title>
 
 <style>
 
@@ -56,9 +56,7 @@ canvas{
     display:block;
 }
 
-/* =========================
-   TOP HUD
-========================= */
+/* HUD */
 
 #hud{
     position:fixed;
@@ -105,9 +103,7 @@ canvas{
     color:#66ffff;
 }
 
-/* =========================
-   XP
-========================= */
+/* XP BAR */
 
 #xpBox{
     position:fixed;
@@ -142,9 +138,7 @@ canvas{
     transition:width .2s;
 }
 
-/* =========================
-   ABILITY BUTTONS
-========================= */
+/* ABILITIES */
 
 #abilities{
     position:fixed;
@@ -186,9 +180,7 @@ canvas{
     background: rgba(0,255,255,.18);
 }
 
-/* =========================
-   MESSAGE & RISK INDICATOR
-========================= */
+/* MESSAGES */
 
 #message{
     position:fixed;
@@ -224,9 +216,7 @@ canvas{
     display: none;
 }
 
-/* =========================
-   SCREENS
-========================= */
+/* SCREENS */
 
 .screen{
     position:fixed;
@@ -295,10 +285,6 @@ canvas{
     transform:scale(.97);
 }
 
-/* =========================
-   UPGRADE
-========================= */
-
 .upgrades{
     display:flex;
     flex-direction:column;
@@ -335,7 +321,6 @@ canvas{
 
 <canvas id="game"></canvas>
 
-<!-- HUD -->
 <div id="hud">
     <div class="hudLeft">
         <div class="stat"><small>Score</small><b id="score">0</b></div>
@@ -348,33 +333,29 @@ canvas{
     </div>
 </div>
 
-<div id="riskStatus">⚠️ RISK ZONE (3x SCORE)</div>
+<div id="riskStatus">⚠️ RISK ZONE (XP & 3x SCORE)</div>
 <div id="message"></div>
 
-<!-- XP -->
 <div id="xpBox">
     <div id="xpText">XP 0 / 100</div>
     <div id="xpBar"><div id="xpFill"></div></div>
 </div>
 
-<!-- ABILITIES -->
 <div id="abilities">
     <button class="ability" id="dashBtn" ontouchstart="mobileAction('dash',event)" onclick="mobileAction('dash',event)">⚡<span>DASH</span></button>
     <button class="ability" id="shieldBtn" ontouchstart="mobileAction('shield',event)" onclick="mobileAction('shield',event)">🛡️<span>SHIELD</span></button>
     <button class="ability" id="empBtn" ontouchstart="mobileAction('emp',event)" onclick="mobileAction('emp',event)">◉<span>EMP</span></button>
 </div>
 
-<!-- START -->
 <div id="startScreen" class="screen">
     <div class="panel">
         <h1>SNAKE</h1>
         <div class="subtitle">EVOLUTION</div>
-        <p>Ekran kenarları öldürmez, karşıdan çıkarsın!<br>Yavaşlatılmış akıcı sürüşün tadını çıkar.</p>
+        <p>Level atlamak için düşman avla veya riskli bölgede kal!<br>Kendi gövdenin üstünden rahatça geçebilirsin.</p>
         <button class="mainButton" onclick="startGame()">OYUNA BAŞLA</button>
     </div>
 </div>
 
-<!-- GAME OVER -->
 <div id="gameOver" class="screen hidden">
     <div class="panel">
         <h1>GAME OVER</h1>
@@ -383,7 +364,6 @@ canvas{
     </div>
 </div>
 
-<!-- LEVEL UP -->
 <div id="upgradeScreen" class="screen hidden">
     <div class="panel">
         <h1 style="font-size:34px">LEVEL UP</h1>
@@ -397,10 +377,6 @@ canvas{
 </div>
 
 <script>
-
-/* =====================================================
-   SNAKE EVOLUTION - FULLY FIXED RESET & iOS COMPATIBLE
-========================================================= */
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d", { alpha: false });
@@ -423,7 +399,7 @@ let obstacles = [];
 let particles = [];
 
 let running = false;
-let score = 0, level = 1, xp = 0, combo = 1;
+let score = 0, level = 1, xp = 0, nextLevelXp = 100, combo = 1;
 let inRiskZone = false;
 
 let best = Number(localStorage.getItem("snakeEvolutionBest") || 0);
@@ -437,11 +413,6 @@ let bossActive = false;
 let audioCtx = null;
 let isPointerDown = false;
 let pointerPos = { x: 0, y: 0 };
-
-
-/* =====================================================
-   AUDIO & HAPTICS (iOS COMPATIBLE)
-========================================================= */
 
 function initAudio(){
     if(audioCtx) return;
@@ -470,11 +441,6 @@ function haptic(pattern=10){
         try{ navigator.vibrate(pattern); }catch(e){}
     }
 }
-
-
-/* =====================================================
-   RESIZE & MAP
-========================================================= */
 
 function resize(){
     W = window.innerWidth;
@@ -505,11 +471,6 @@ function generateMap(){
         }
     }
 }
-
-
-/* =====================================================
-   PLAYER SNAKE
-========================================================= */
 
 function createSnake(){
     snake = [];
@@ -548,7 +509,6 @@ function updateSnake(){
     let newX = snake[0].x + Math.cos(angle) * currentSpeed;
     let newY = snake[0].y + Math.sin(angle) * currentSpeed;
 
-    // --- DUVARLARDAN GEÇİŞ (SONSUZ HARİTA) ---
     if (newX < 0) newX = W;
     else if (newX > W) newX = 0;
 
@@ -557,12 +517,14 @@ function updateSnake(){
 
     const newHead = { x: newX, y: newY };
 
-    // Kırmızı Bölge (Risk Zone)
     const distToCenter = Math.hypot(newHead.x - W/2, newHead.y - H/2);
     if(distToCenter < 120){
         if(!inRiskZone){
             inRiskZone = true;
             document.getElementById("riskStatus").style.display = "block";
+        }
+        if(Math.random() < 0.03){
+            gainXP(1);
         }
     } else {
         if(inRiskZone){
@@ -571,25 +533,11 @@ function updateSnake(){
         }
     }
 
-    // Engel Çarpışması
     for(const obs of obstacles){
         if(Math.hypot(newHead.x - obs.x, newHead.y - obs.y) < SNAKE_RADIUS + obs.r){
             if(shieldTimer > 0){
                 shieldTimer = 0;
                 angle += Math.PI;
-                showMessage("🛡️ SHIELD BLOCKED");
-            } else {
-                gameOver();
-                return;
-            }
-        }
-    }
-
-    // Gövdeye Çarpma
-    for(let i = 15; i < snake.length; i++){
-        if(Math.hypot(newHead.x - snake[i].x, newHead.y - snake[i].y) < SNAKE_RADIUS){
-            if(shieldTimer > 0){
-                shieldTimer = 0;
                 showMessage("🛡️ SHIELD BLOCKED");
             } else {
                 gameOver();
@@ -606,11 +554,6 @@ function updateSnake(){
 
     checkFoodCollision();
 }
-
-
-/* =====================================================
-   FOOD
-========================================================= */
 
 function spawnFood(){
     if(foods.length >= 10) return;
@@ -649,17 +592,11 @@ function eatFood(val = 10){
     snakeLength += Math.max(1, Math.floor(val / 5)); 
     combo = Math.min(10, combo + 1);
 
-    gainXP(finalVal);
     createExplosion(snake[0].x, snake[0].y, inRiskZone ? "#ff0055" : "#00ffff", 8);
     sound(600 + combo * 30, .08, "sine", .04);
     haptic(8);
     updateHUD();
 }
-
-
-/* =====================================================
-   ENEMIES & DEV BOSS YILAN
-========================================================= */
 
 function spawnEnemy(){
     if(enemies.length >= 3) return;
@@ -716,7 +653,7 @@ function killEnemy(index){
         bossActive = false;
         bossSpawnTimer = 0;
         score += 300;
-        gainXP(100);
+        gainXP(50);
         showMessage("🏆 DEV BOSS YOK EDİLDİ!");
     } else {
         score += 50;
@@ -763,7 +700,6 @@ function updateEnemies(){
 
         const newEHead = e.body[0];
 
-        // 1. DÜŞMAN BİZİM GÖVDEMİZE ÇARPARSA
         for(let j = 5; j < snake.length; j++){
             if(Math.hypot(newEHead.x - snake[j].x, newEHead.y - snake[j].y) < e.radius + SNAKE_RADIUS){
                 killEnemy(i);
@@ -771,7 +707,6 @@ function updateEnemies(){
             }
         }
 
-        // 2. BİZİM KAFAMIZ DÜŞMANIN GÖVDESİNE ÇARPARSA
         for(let j = 0; j < e.body.length; j++){
             if(Math.hypot(snake[0].x - e.body[j].x, snake[0].y - e.body[j].y) < SNAKE_RADIUS + e.radius){
                 if(shieldTimer > 0){
@@ -786,11 +721,6 @@ function updateEnemies(){
         }
     }
 }
-
-
-/* =====================================================
-   PARTICLES & RENDER
-========================================================= */
 
 function createExplosion(x, y, color, count){
     for(let i=0; i<count; i++){
@@ -816,7 +746,6 @@ function drawMap(){
     ctx.fillStyle = "#02050a";
     ctx.fillRect(0, 0, W, H);
 
-    // Kırmızı Risk Bölgesi
     ctx.save();
     const riskGrad = ctx.createRadialGradient(W/2, H/2, 10, W/2, H/2, 120);
     riskGrad.addColorStop(0, "rgba(255, 0, 85, 0.25)");
@@ -831,7 +760,6 @@ function drawMap(){
     ctx.stroke();
     ctx.restore();
 
-    // Engeller
     for(const obs of obstacles){
         ctx.save();
         ctx.shadowBlur = 10;
@@ -918,17 +846,14 @@ function drawParticles(){
     }
 }
 
-
-/* =====================================================
-   ABILITIES & LOGIC
-========================================================= */
-
 function gainXP(amount){
     xp += amount;
-    if(xp >= 100){
-        xp -= 100;
+    if(xp >= nextLevelXp){
+        xp -= nextLevelXp;
         level++;
+        nextLevelXp = Math.floor(nextLevelXp * 1.5); 
         running = false;
+        isPointerDown = false;
         document.getElementById("upgradeScreen").classList.remove("hidden");
     }
     updateHUD();
@@ -979,11 +904,6 @@ function mobileAction(act, e){
     if(act === 'emp') emp();
 }
 
-
-/* =====================================================
-   TOUCH & MOUSE EVENTS
-========================================================= */
-
 function pointerStart(e){
     if(e.target.closest("#abilities") || e.target.closest(".screen")) return;
     initAudio();
@@ -1010,23 +930,17 @@ window.addEventListener("mousedown", pointerStart);
 window.addEventListener("mousemove", pointerMove);
 window.addEventListener("mouseup", pointerEnd);
 
-
-/* =====================================================
-   GAME LOOP & FULL RESET
-========================================================= */
-
 function startGame(){
     initAudio();
     
-    // Skor, XP ve Ölçekleri Sıfırlama
     score = 0; 
     level = 1; 
     xp = 0; 
+    nextLevelXp = 100;
     combo = 1;
     snakeLength = 25;
     inRiskZone = false;
     
-    // Yılan Yetenek ve Hız Düzeylerini Tam Sıfırlama
     speedLevel = 1; 
     magnetLevel = 0; 
     shieldLevel = 1;
@@ -1035,7 +949,6 @@ function startGame(){
     dashCooldown = 0; 
     empCooldown = 0;
 
-    // Harita ve Düşman Sistemini Temizleme
     bossSpawnTimer = 0; 
     bossActive = false;
     foods = []; 
@@ -1046,7 +959,6 @@ function startGame(){
     createSnake();
     running = true;
 
-    // Arayüzleri Gizleme
     document.getElementById("riskStatus").style.display = "none";
     document.getElementById("startScreen").classList.add("hidden");
     document.getElementById("gameOver").classList.add("hidden");
@@ -1074,8 +986,8 @@ function updateHUD(){
     document.getElementById("length").textContent = snakeLength;
     document.getElementById("combo").textContent = "x" + combo;
     document.getElementById("best").textContent = best;
-    document.getElementById("xpText").textContent = "XP " + xp + " / 100";
-    document.getElementById("xpFill").style.width = xp + "%";
+    document.getElementById("xpText").textContent = "XP " + xp + " / " + nextLevelXp;
+    document.getElementById("xpFill").style.width = Math.min(100, (xp / nextLevelXp) * 100) + "%";
 }
 
 function showMessage(txt){
