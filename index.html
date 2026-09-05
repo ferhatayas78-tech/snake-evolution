@@ -14,7 +14,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-<title>Snake Evolution - Tiz IĞIĞI Boss Edition</title>
+<title>Snake Evolution - Boss HP & Tongue Attack Edition</title>
 
 <style>
 *{
@@ -106,29 +106,41 @@ canvas#game{
     color:#66ffff;
 }
 
-/* BOSS TIMER */
+/* BOSS HUD & HP BAR */
 #bossHud{
     position:fixed;
-    top: calc(env(safe-area-inset-top) + 40px);
+    top: calc(env(safe-area-inset-top) + 38px);
     left:50%;
     transform:translateX(-50%);
     z-index:30;
-    padding:6px 16px;
-    border-radius:20px;
-    background: rgba(255,0,85,0.4);
+    padding:8px 16px;
+    border-radius:16px;
+    background: rgba(15, 3, 10, 0.85);
     border: 1px solid rgba(255,0,85,0.9);
     color: #ff3366;
     font-weight:900;
-    font-size:13px;
+    font-size:12px;
     letter-spacing:1px;
     display:none;
-    text-shadow: 0 0 10px #ff0055;
-    animation: pulse 0.5s infinite alternate;
+    text-align:center;
+    box-shadow: 0 0 15px rgba(255, 0, 85, 0.4);
 }
 
-@keyframes pulse {
-    from { transform: translateX(-50%) scale(1); }
-    to { transform: translateX(-50%) scale(1.08); }
+#bossHpBg{
+    width:160px;
+    height:10px;
+    background:#220510;
+    border-radius:5px;
+    border:1px solid #ff0055;
+    margin-top:4px;
+    overflow:hidden;
+}
+
+#bossHpFill{
+    width:100%;
+    height:100%;
+    background: linear-gradient(90deg, #ff0055, #ff5500);
+    transition: width 0.15s ease;
 }
 
 /* XP BAR */
@@ -205,7 +217,7 @@ canvas#game{
 /* MESSAGES */
 #message{
     position:fixed;
-    top: calc(env(safe-area-inset-top) + 75px);
+    top: calc(env(safe-area-inset-top) + 85px);
     left:50%;
     transform: translateX(-50%);
     z-index:40;
@@ -321,7 +333,11 @@ canvas#game{
     </div>
 </div>
 
-<div id="bossHud">😱 BOSS (IĞIĞI!): <span id="bossTime">60</span>s</div>
+<div id="bossHud">
+    😱 BOSS (IĞIĞI!): <span id="bossTime">60</span>s
+    <div id="bossHpBg"><div id="bossHpFill"></div></div>
+</div>
+
 <div id="message"></div>
 
 <div id="xpBox">
@@ -330,16 +346,16 @@ canvas#game{
 </div>
 
 <div id="abilities">
+    <button class="ability" id="tongueBtn" ontouchstart="mobileAction('tongue',event)" onclick="mobileAction('tongue',event)">👅<span>DİL</span></button>
     <button class="ability" id="dashBtn" ontouchstart="mobileAction('dash',event)" onclick="mobileAction('dash',event)">⚡<span>DASH</span></button>
     <button class="ability" id="shieldBtn" ontouchstart="mobileAction('shield',event)" onclick="mobileAction('shield',event)">🛡️<span>SHIELD</span></button>
-    <button class="ability" id="empBtn" ontouchstart="mobileAction('emp',event)" onclick="mobileAction('emp',event)">◉<span>EMP</span></button>
 </div>
 
 <div id="startScreen" class="screen">
     <div class="panel">
         <h1>SNAKE</h1>
-        <div class="subtitle">TİZ IĞIĞI BOSS EDITION</div>
-        <p>Boss tiz 'IĞIĞI' çığlıklarıyla seni kovalayacak! Kaçmak için Sol Tık, Çift Dokunma veya SPACE ile DASH atabilirsin.</p>
+        <div class="subtitle">BOSS HP & DİL SALDIRISI</div>
+        <p>Boss 100 HP ile gelir! Kaçmak için SPACE/Dash kullan, Boss'a <b>F tuşu</b> veya <b>DİL</b> butonu ile vurarak imha et!</p>
         <button class="mainButton" onclick="startGame()">OYUNA BAŞLA</button>
     </div>
 </div>
@@ -388,6 +404,11 @@ let snake = [];
 let snakeLength = 25; 
 let angle = 0; 
 
+let tongueActive = false;
+let tongueTimer = 0;
+let tongueLength = 0;
+const MAX_TONGUE_LENGTH = 140;
+
 let pacmen = [];
 let enemySnakes = [];
 let centipedes = [];
@@ -400,7 +421,6 @@ let foods = [];
 let obstacles = [];
 let particles = [];
 
-// Sabit Portallar
 let wormholes = {
     entry: { x: 400, y: 400, r: 35, color: "#00d9ff" },
     exit: { x: 2100, y: 2100, r: 35, color: "#ff7700" },
@@ -412,7 +432,7 @@ let score = 0, level = 1, xp = 0, nextLevelXp = 150, combo = 1;
 let best = Number(localStorage.getItem("snakeEvolutionBest") || 0);
 
 let speedLevel = 1, magnetLevel = 0, shieldLevel = 1;
-let shieldTimer = 0, dashCooldown = 0, empCooldown = 0;
+let shieldTimer = 0, dashCooldown = 0, tongueCooldown = 0;
 
 let audioCtx = null;
 let isPointerDown = false;
@@ -444,7 +464,6 @@ function sound(frequency=500, duration=.08, type="sine", volume=.035){
     }catch(e){}
 }
 
-// TİZ "IĞIĞIĞI" ÇIĞLIK SES EFEKTİ
 function playHighIgigiSound(volumeScale = 0.1) {
     if(!audioCtx) return;
     try{
@@ -454,10 +473,7 @@ function playHighIgigiSound(volumeScale = 0.1) {
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         
-        // Tiz çığlık tonu için 'sine' + yüksek frekans modülasyonu
         osc.type = "sine";
-        
-        // Yüksek tiz frekans aralığı (1200Hz - 2400Hz arası hızlı "IĞI-ĞI-ĞI" dalgalanması)
         osc.frequency.setValueAtTime(1400, now);
         osc.frequency.linearRampToValueAtTime(2200, now + 0.05);
         osc.frequency.linearRampToValueAtTime(1200, now + 0.10);
@@ -584,16 +600,81 @@ function updateSnake(){
     snake.unshift(newHead);
     while(snake.length > snakeLength) snake.pop();
 
+    updateTongue();
     checkFoodCollision();
 }
 
-function spawnEnemySnake(){
-    if(enemySnakes.length >= 4 || megaPacman) return;
-    let sx = 150 + Math.random() * (WORLD_WIDTH - 300);
-    let sy = 150 + Math.random() * (WORLD_HEIGHT - 300);
-    let body = [];
-    for(let i=0; i<20; i++) body.push({x: sx, y: sy});
+function triggerTongue(){
+    if(!running || tongueCooldown > 0) return;
+    tongueActive = true;
+    tongueTimer = 16;
+    tongueLength = 10;
+    tongueCooldown = 25; 
+    sound(1100, 0.08, "sawtooth", 0.06);
+    haptic(15);
+}
 
+function updateTongue(){
+    if(!tongueActive) return;
+
+    tongueTimer--;
+    if(tongueTimer > 8){
+        tongueLength += 22;
+    } else {
+        tongueLength -= 22;
+    }
+
+    if(tongueLength <= 0 || tongueTimer <= 0){
+        tongueActive = false;
+        tongueLength = 0;
+        return;
+    }
+
+    const head = snake[0];
+    const tipX = head.x + Math.cos(angle) * tongueLength;
+    const tipY = head.y + Math.sin(angle) * tongueLength;
+
+    if(megaPacman){
+        const distToBoss = Math.hypot(tipX - megaPacman.x, tipY - megaPacman.y);
+        if(distToBoss < megaPacman.radius + 15){
+            megaPacman.hp -= 10;
+            updateBossHpBar();
+
+            createExplosion(tipX, tipY, "#ff0055", 15);
+            sound(200, 0.1, "square", 0.08);
+            shakeAmount = 8;
+
+            // GERİ TEPME (KNOCKBACK): Boss vurulduğunda yalandan/oyuncudan uzağa (100 piksel) savrulur
+            megaPacman.x += Math.cos(angle) * 100;
+            megaPacman.y += Math.sin(angle) * 100;
+            
+            // Sınırlar dışına çıkmasını engelle
+            megaPacman.x = Math.max(50, Math.min(WORLD_WIDTH - 50, megaPacman.x));
+            megaPacman.y = Math.max(50, Math.min(WORLD_HEIGHT - 50, megaPacman.y));
+
+            tongueActive = false; 
+
+            if(megaPacman.hp <= 0){
+                killMegaPacman(true);
+            }
+        }
+    }
+
+    for(let i = pacmen.length - 1; i >= 0; i--){
+        if(Math.hypot(tipX - pacmen[i].x, tipY - pacmen[i].y) < pacmen[i].radius + 10){
+            killPacman(i);
+        }
+    }
+}
+
+function spawnEnemySnake(){
+    if(enemySnakes.length >= 3) return;
+    let body = [];
+    let startX = Math.random() * WORLD_WIDTH;
+    let startY = Math.random() * WORLD_HEIGHT;
+    for(let i = 0; i < 15; i++){
+        body.push({x: startX - i * 6, y: startY});
+    }
     enemySnakes.push({
         body: body,
         angle: Math.random() * Math.PI * 2,
@@ -633,27 +714,39 @@ function updateEnemySnakes(){
                 enemySnakes.splice(i, 1);
                 score += 200;
                 gainXP(30);
-                showMessage("🛡️ KALKAN YILANI YOK ETTİ!");
             } else {
                 gameOver();
                 return;
+            }
+        }
+
+        for(let k = 2; k < snake.length; k++){
+            if(Math.hypot(esHead.x - snake[k].x, esHead.y - snake[k].y) < SNAKE_RADIUS + 4){
+                createExplosion(esHead.x, esHead.y, "#ff2a55", 25);
+                enemySnakes.splice(i, 1);
+                score += 300;
+                gainXP(35);
+                sound(750, 0.1, "sine", 0.05);
+                showMessage("💥 DÜŞMAN YILAN KUYRUĞUNA ÇARPIP PATLADI!");
+                break;
             }
         }
     }
 }
 
 function spawnCentipede(){
-    if(centipedes.length >= 4 || megaPacman) return;
-    let sx = 150 + Math.random() * (WORLD_WIDTH - 300);
-    let sy = 150 + Math.random() * (WORLD_HEIGHT - 300);
+    if(centipedes.length >= 2) return;
     let body = [];
-    for(let i=0; i<18; i++) body.push({x: sx, y: sy});
-
+    let startX = Math.random() * WORLD_WIDTH;
+    let startY = Math.random() * WORLD_HEIGHT;
+    for(let i = 0; i < 12; i++){
+        body.push({x: startX - i * 6, y: startY});
+    }
     centipedes.push({
         body: body,
         angle: Math.random() * Math.PI * 2,
-        speed: 2.5,
         wave: 0,
+        speed: 2.2,
         color: "#00ff66"
     });
 }
@@ -689,11 +782,20 @@ function updateCentipedes(){
                 createExplosion(cHead.x, cHead.y, "#00ff66", 20);
                 centipedes.splice(i, 1);
                 score += 250;
-                gainXP(40);
-                showMessage("🛡️ KALKAN ÇIYANI YOK ETTİ!");
             } else {
                 gameOver();
                 return;
+            }
+        }
+
+        for(let k = 2; k < snake.length; k++){
+            if(Math.hypot(cHead.x - snake[k].x, cHead.y - snake[k].y) < SNAKE_RADIUS + 4){
+                createExplosion(cHead.x, cHead.y, "#00ff66", 25);
+                centipedes.splice(i, 1);
+                score += 350;
+                gainXP(40);
+                showMessage("💥 ÇIYAN KUYRUĞUNA ÇARPTI!");
+                break;
             }
         }
     }
@@ -713,7 +815,6 @@ function updateWormholes(){
         haptic(20);
         createExplosion(wormholes.entry.x, wormholes.entry.y, "#00d9ff", 20);
         createExplosion(wormholes.exit.x, wormholes.exit.y, "#ff7700", 20);
-        showMessage("🌀 PORTALDAN IŞINLANDIN!");
     }
     else if(Math.hypot(head.x - wormholes.exit.x, head.y - wormholes.exit.y) < wormholes.exit.r){
         head.x = wormholes.entry.x + Math.cos(angle) * 45;
@@ -723,7 +824,6 @@ function updateWormholes(){
         haptic(20);
         createExplosion(wormholes.exit.x, wormholes.exit.y, "#ff7700", 20);
         createExplosion(wormholes.entry.x, wormholes.entry.y, "#00d9ff", 20);
-        showMessage("🌀 PORTALDAN IŞINLANDIN!");
     }
 }
 
@@ -761,8 +861,7 @@ function spawnFood(){
     foods.push({
         x: 50 + Math.random() * (WORLD_WIDTH - 100),
         y: 50 + Math.random() * (WORLD_HEIGHT - 100),
-        r: 7,
-        val: 10
+        r: 7, val: 10
     });
 }
 
@@ -911,7 +1010,6 @@ function killPacman(index){
 function spawnMegaPacman(){
     if(megaPacman) return;
 
-    // Boss oyuncudan uzakta doğar (Güvenli Alan)
     const head = snake[0] || { x: WORLD_WIDTH/2, y: WORLD_HEIGHT/2 };
     let spawnX = head.x + 800;
     let spawnY = head.y + 800;
@@ -923,7 +1021,9 @@ function spawnMegaPacman(){
         x: spawnX,
         y: spawnY,
         radius: 65,            
-        speed: 1.8, // DENGELENDİ: Yılanın taban hızına yakın, makul bir başlangıç
+        speed: 1.8,
+        hp: 100, 
+        maxHp: 100,
         angle: 0,
         mouthAngle: 0.2,
         mouthSpeed: 0.08,
@@ -933,15 +1033,21 @@ function spawnMegaPacman(){
     };
 
     bossTimer = 3600; 
-    pacmen = []; 
-    enemySnakes = [];
-    centipedes = [];
+    pacmen = []; enemySnakes = []; centipedes = [];
     shakeAmount = 15;
 
     sound(300, 0.4, "sawtooth", 0.08);
     haptic([100, 50, 100]);
-    showMessage("😱 IĞIĞI BOSS UYANDI! KAÇ!!");
+    showMessage("😱 100 HP BOSS UYANDI! DİL ATARAK VUR!");
     document.getElementById("bossHud").style.display = "block";
+    updateBossHpBar();
+}
+
+function updateBossHpBar(){
+    if(!megaPacman) return;
+    const fill = document.getElementById("bossHpFill");
+    const pct = Math.max(0, (megaPacman.hp / megaPacman.maxHp) * 100);
+    fill.style.width = pct + "%";
 }
 
 function updateMegaPacman(){
@@ -952,7 +1058,7 @@ function updateMegaPacman(){
     document.getElementById("bossTime").textContent = secondsLeft;
 
     if(bossTimer <= 0){
-        killMegaPacman(true);
+        killMegaPacman(false);
         return;
     }
 
@@ -961,17 +1067,12 @@ function updateMegaPacman(){
     const dy = head.y - megaPacman.y;
     const dist = Math.hypot(dx, dy);
 
-    // --- TİZ IĞIĞIĞI ÇIĞLIK SES EFEKTİ ---
     igigiSoundTimer++;
-    // Yaklaştıkça ses sıklığı belirgin şekilde artar
     const soundInterval = Math.max(8, Math.floor(dist / 50)); 
     if(igigiSoundTimer >= soundInterval){
         igigiSoundTimer = 0;
-        // Mesafe yaklaştıkça ses daha da tiz ve baskın çıkar
         const volume = Math.min(0.25, (1 - dist / 1100) * 0.22);
-        if(volume > 0.01) {
-            playHighIgigiSound(volume);
-        }
+        if(volume > 0.01) playHighIgigiSound(volume);
     }
 
     megaPacman.mouthAngle += megaPacman.mouthSpeed;
@@ -981,23 +1082,13 @@ function updateMegaPacman(){
 
     megaPacman.angle = Math.atan2(dy, dx);
 
-    // Hafif Çekim Gücü
-    if(dist < 400){
-        const pullFactor = (1 - dist / 400) * 0.6;
-        head.x -= Math.cos(megaPacman.angle) * pullFactor;
-        head.y -= Math.sin(megaPacman.angle) * pullFactor;
-    }
-
-    // ADİL HIZ DENGESİ (Player Speed'e bağlı)
     const playerSpeed = baseSpeed + ((speedLevel - 1) * 0.25);
-    let dynamicSpeed = playerSpeed * 0.85; // Oyuncudan biraz daha yavaş takip eder
+    let dynamicSpeed = playerSpeed * 0.85; 
     
-    if(dist > 500) {
-        dynamicSpeed = playerSpeed + 0.3; // Çok uzaklaşırsa arayı kapatır
-    }
+    if(dist > 500) dynamicSpeed = playerSpeed + 0.3;
 
     megaPacman.chargeTimer++;
-    if(megaPacman.chargeTimer > 350){ // Seyrek Depar
+    if(megaPacman.chargeTimer > 350){
         megaPacman.isCharging = true;
         megaPacman.color = "#ffea00";
         shakeAmount = 4;
@@ -1028,21 +1119,21 @@ function updateMegaPacman(){
     }
 }
 
-function killMegaPacman(survived = false){
+function killMegaPacman(destroyedByPlayer = true){
     if(!megaPacman) return;
 
     document.getElementById("bossHud").style.display = "none";
     shakeAmount = 30;
 
-    if(survived){
-        score += 1000;
-        gainXP(100);
-        showMessage("🎉 IĞIĞI BOSS'TAN KURTULDUN! (+1000 SKOR)");
+    if(destroyedByPlayer){
+        score += 2000;
+        gainXP(150);
+        showMessage("💥 BOSS'U DİLİNLE İMHA ETTİN! (+2000 SKOR)");
         
-        for(let k = 0; k < 30; k++){
+        for(let k = 0; k < 35; k++){
             foods.push({
-                x: megaPacman.x + (Math.random() * 180 - 90),
-                y: megaPacman.y + (Math.random() * 180 - 90),
+                x: megaPacman.x + (Math.random() * 200 - 100),
+                y: megaPacman.y + (Math.random() * 200 - 100),
                 r: 10, val: 30
             });
         }
@@ -1068,31 +1159,6 @@ function drawMinimap(){
         mCtx.fill();
     }
 
-    mCtx.fillStyle = "#00d9ff";
-    mCtx.beginPath();
-    mCtx.arc(wormholes.entry.x * scaleX, wormholes.entry.y * scaleY, 3, 0, Math.PI * 2);
-    mCtx.fill();
-
-    mCtx.fillStyle = "#ff7700";
-    mCtx.beginPath();
-    mCtx.arc(wormholes.exit.x * scaleX, wormholes.exit.y * scaleY, 3, 0, Math.PI * 2);
-    mCtx.fill();
-
-    mCtx.fillStyle = "#ff0055";
-    for(const p of pacmen){
-        mCtx.beginPath();
-        mCtx.arc(p.x * scaleX, p.y * scaleY, 2.5, 0, Math.PI * 2);
-        mCtx.fill();
-    }
-
-    for(const es of enemySnakes){
-        if(es.body.length > 0){
-            mCtx.beginPath();
-            mCtx.arc(es.body[0].x * scaleX, es.body[0].y * scaleY, 2, 0, Math.PI * 2);
-            mCtx.fill();
-        }
-    }
-
     if(megaPacman){
         mCtx.fillStyle = "#ff00ff";
         mCtx.beginPath();
@@ -1106,6 +1172,46 @@ function drawMinimap(){
         mCtx.arc(snake[0].x * scaleX, snake[0].y * scaleY, 3, 0, Math.PI * 2);
         mCtx.fill();
     }
+}
+
+function drawSnake(){
+    if(!snake.length) return;
+
+    ctx.save();
+    ctx.shadowBlur = 12;
+    ctx.shadowColor = "#00ffff";
+
+    if(tongueActive && tongueLength > 0){
+        const head = snake[0];
+        const tipX = head.x + Math.cos(angle) * tongueLength;
+        const tipY = head.y + Math.sin(angle) * tongueLength;
+
+        ctx.strokeStyle = "#ff0055";
+        ctx.lineWidth = 6;
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        ctx.moveTo(head.x, head.y);
+        ctx.lineTo(tipX, tipY);
+        ctx.stroke();
+
+        ctx.fillStyle = "#ff0055";
+        ctx.beginPath();
+        ctx.arc(tipX, tipY, 5, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    for(let i = snake.length - 1; i >= 0; i--){
+        const p = snake[i];
+        const ratio = i / snake.length;
+        const radius = SNAKE_RADIUS * (1 - ratio * 0.3);
+
+        ctx.fillStyle = i === 0 ? "#ffffff" : `hsl(${180 + ratio * 50}, 100%, 50%)`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    ctx.restore();
 }
 
 function drawMegaPacman(){
@@ -1140,14 +1246,6 @@ function drawMegaPacman(){
 function drawPacmen(){
     for(const p of pacmen){
         ctx.save();
-        if(p.isCharging || p.color === "#ff0033"){
-            ctx.shadowBlur = 20;
-            ctx.shadowColor = "#ff0033";
-        } else {
-            ctx.shadowBlur = 10;
-            ctx.shadowColor = "#ffe600";
-        }
-
         ctx.fillStyle = p.color;
         ctx.beginPath();
         ctx.arc(
@@ -1257,27 +1355,6 @@ function drawMap(){
     ctx.restore();
 }
 
-function drawSnake(){
-    if(!snake.length) return;
-
-    ctx.save();
-    ctx.shadowBlur = 12;
-    ctx.shadowColor = "#00ffff";
-
-    for(let i = snake.length - 1; i >= 0; i--){
-        const p = snake[i];
-        const ratio = i / snake.length;
-        const radius = SNAKE_RADIUS * (1 - ratio * 0.3);
-
-        ctx.fillStyle = i === 0 ? "#ffffff" : `hsl(${180 + ratio * 50}, 100%, 50%)`;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
-        ctx.fill();
-    }
-
-    ctx.restore();
-}
-
 function drawFoods(){
     ctx.save();
     ctx.shadowBlur = 8;
@@ -1342,40 +1419,21 @@ function activateShield(){
     showMessage("🛡️ SHIELD ACTIVATED");
 }
 
-function emp(){
-    if(!running || empCooldown > 0) return;
-    empCooldown = 4000;
-    
-    for(let i = pacmen.length - 1; i >= 0; i--){
-        killPacman(i);
-    }
-    enemySnakes = [];
-    centipedes = [];
-    
-    createExplosion(snake[0].x, snake[0].y, "#7c5cff", 40);
-    showMessage("◉ EMP PULSE!");
-}
-
 function mobileAction(act, e){
     if(e) { e.preventDefault(); e.stopPropagation(); }
     initAudio();
+    if(act === 'tongue') triggerTongue();
     if(act === 'dash') dash();
     if(act === 'shield') activateShield();
-    if(act === 'emp') emp();
 }
 
 function pointerStart(e){
     if(e.target.closest("#abilities") || e.target.closest(".screen")) return;
     initAudio();
 
-    // Fare Sol Tık veya Çift Dokunma ile Manuel Dash Atma
-    if(e.button === 0 && e.type === "mousedown"){
-        dash();
-    }
-
     const now = Date.now();
     if (now - lastTapTime < 280) {
-        dash(); // Çift Dokunma Dash
+        triggerTongue(); 
     }
     lastTapTime = now;
 
@@ -1399,8 +1457,10 @@ function pointerEnd(){
     isPointerDown = false;
 }
 
-// Klavyeden SPACE veya SHIFT tuşlarıyla da Dash Tetikleme
 window.addEventListener("keydown", (e) => {
+    if(e.code === "KeyF") {
+        triggerTongue();
+    }
     if(e.code === "Space" || e.key === "Shift") {
         dash();
     }
@@ -1421,7 +1481,7 @@ function startGame(){
     snakeLength = 25; gameTime = 0; igigiSoundTimer = 0;
     
     speedLevel = 1; magnetLevel = 0; shieldLevel = 1;
-    baseSpeed = 2.4; shieldTimer = 0; dashCooldown = 0; empCooldown = 0;
+    baseSpeed = 2.4; shieldTimer = 0; dashCooldown = 0; tongueCooldown = 0;
 
     foods = []; pacmen = []; enemySnakes = []; centipedes = []; megaPacman = null; particles = [];
 
@@ -1492,7 +1552,7 @@ function loop(){
         }
 
         if(dashCooldown > 0) dashCooldown -= 16;
-        if(empCooldown > 0) empCooldown -= 16;
+        if(tongueCooldown > 0) tongueCooldown -= 16;
         if(shieldTimer > 0) shieldTimer -= 16;
     }
 
