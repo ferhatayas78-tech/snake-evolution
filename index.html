@@ -41,12 +41,28 @@ body{
     inset:0;
 }
 
-canvas{
+canvas#game{
     position:fixed;
     inset:0;
     width:100%;
     height:100%;
     display:block;
+}
+
+/* MINIMAP CANVAS */
+#minimap{
+    position:fixed;
+    top: calc(env(safe-area-inset-top) + 45px);
+    right: calc(env(safe-area-inset-right) + 8px);
+    width: 90px;
+    height: 90px;
+    background: rgba(3, 12, 21, 0.75);
+    border: 1px solid rgba(0, 255, 255, 0.4);
+    border-radius: 12px;
+    z-index: 35;
+    pointer-events: none;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
 }
 
 /* HUD */
@@ -291,6 +307,7 @@ canvas{
 <body>
 
 <canvas id="game"></canvas>
+<canvas id="minimap" width="90" height="90"></canvas>
 
 <div id="hud">
     <div class="hudGroup">
@@ -322,7 +339,7 @@ canvas{
     <div class="panel">
         <h1>SNAKE</h1>
         <div class="subtitle">ARENA EVOLUTION</div>
-        <p>Rakip Yılanlar, Çıyanlar ve Agresif Pac-Man'ler sahada! 30. saniyede gelen Dev Pac-Man Boss'una dikkat et!</p>
+        <p>Mini Haritadan düşmanları izle, sabit Portalları kullanarak ışınlan ve DASH butonu ile hızlanarak XP'leri topla!</p>
         <button class="mainButton" onclick="startGame()">OYUNA BAŞLA</button>
     </div>
 </div>
@@ -340,7 +357,7 @@ canvas{
         <h1 style="font-size:28px">LEVEL UP</h1>
         <p>Yılanını geliştir.</p>
         <div class="upgrades">
-            <button class="upgrade" onclick="upgrade('speed')">⚡ SPEED<small>Hareket hızını artır</small></button>
+            <button class="upgrade" onclick="upgrade('speed')">⚡ SPEED<small>Taban hareket hızını artır</small></button>
             <button class="upgrade" onclick="upgrade('magnet')">🧲 MAGNET<small>Yem çekim menzilini artır</small></button>
             <button class="upgrade" onclick="upgrade('shield')">🛡️ SHIELD<small>Kalkan süresini artır</small></button>
         </div>
@@ -349,9 +366,11 @@ canvas{
 
 <script>
 const canvas = document.getElementById("game");
+const minimapCanvas = document.getElementById("minimap");
 
 // iOS Safari Donanım İvmesi Düzeltmesi
 const ctx = canvas.getContext("2d", { alpha: false, willReadFrequently: false });
+const mCtx = minimapCanvas.getContext("2d");
 
 let W = 0, H = 0, DPR = 1;
 let WORLD_WIDTH = 2500;
@@ -381,16 +400,15 @@ let foods = [];
 let obstacles = [];
 let particles = [];
 
-// Portallar
+// Sabit Portallar
 let wormholes = {
-    entry: { x: 400, y: 400, r: 35, color: "#00d9ff" },
+    entry: { x: 500, y: 500, r: 35, color: "#00d9ff" },
     exit: { x: 2000, y: 2000, r: 35, color: "#ff7700" },
-    cooldown: 0,
-    relocateTimer: 0
+    cooldown: 0
 };
 
 let running = false;
-let score = 0, level = 1, xp = 0, nextLevelXp = 100, combo = 1;
+let score = 0, level = 1, xp = 0, nextLevelXp = 80, combo = 1;
 let best = Number(localStorage.getItem("snakeEvolutionBest") || 0);
 
 let speedLevel = 1, magnetLevel = 0, shieldLevel = 1;
@@ -458,7 +476,6 @@ function resize(){
     W = window.innerWidth;
     H = window.innerHeight;
     
-    // iOS Safari Bellek Koruması (DPR Sınırlandırması)
     DPR = Math.min(window.devicePixelRatio || 1, 1.5);
 
     canvas.width = Math.floor(W * DPR);
@@ -478,29 +495,25 @@ window.addEventListener("resize", resize, {passive:true});
 
 function generateMap(){
     obstacles = [];
-    // Engeller artırıldı (45 Adet)
-    for(let i=0; i<45; i++){
+    for(let i=0; i<40; i++){
         let ox = 150 + Math.random() * (WORLD_WIDTH - 300);
         let oy = 150 + Math.random() * (WORLD_HEIGHT - 300);
         if(Math.hypot(ox - WORLD_WIDTH/2, oy - WORLD_HEIGHT/2) > 350){
             obstacles.push({ x: ox, y: oy, r: 16 + Math.random() * 22 });
         }
     }
-    relocateWormholes();
-}
-
-function relocateWormholes(){
-    wormholes.entry.x = 300 + Math.random() * (WORLD_WIDTH - 600);
-    wormholes.entry.y = 300 + Math.random() * (WORLD_HEIGHT - 600);
-    wormholes.exit.x = 300 + Math.random() * (WORLD_WIDTH - 600);
-    wormholes.exit.y = 300 + Math.random() * (WORLD_HEIGHT - 600);
-    wormholes.relocateTimer = 0;
+    
+    // Portalları haritanın iki ucuna sabitle
+    wormholes.entry.x = 400;
+    wormholes.entry.y = 400;
+    wormholes.exit.x = WORLD_WIDTH - 400;
+    wormholes.exit.y = WORLD_HEIGHT - 400;
 }
 
 function createSnake(){
     snake = [];
     const startX = WORLD_WIDTH / 2;
-    const startY = WORLD_HEIGHT / 2 + 400;
+    const startY = WORLD_HEIGHT / 2;
     angle = 0;
 
     for(let i=0; i<snakeLength; i++){
@@ -611,7 +624,7 @@ function updateEnemySnakes(){
                 createExplosion(esHead.x, esHead.y, "#ff2a55", 20);
                 enemySnakes.splice(i, 1);
                 score += 200;
-                gainXP(40);
+                gainXP(50);
                 showMessage("🛡️ KALKAN YILANI YOK ETTİ!");
             } else {
                 gameOver();
@@ -668,7 +681,7 @@ function updateCentipedes(){
                 createExplosion(cHead.x, cHead.y, "#00ff66", 20);
                 centipedes.splice(i, 1);
                 score += 250;
-                gainXP(50);
+                gainXP(60);
                 showMessage("🛡️ KALKAN ÇIYANI YOK ETTİ!");
             } else {
                 gameOver();
@@ -679,16 +692,7 @@ function updateCentipedes(){
 }
 
 function updateWormholes(){
-    wormholes.relocateTimer++;
     if(wormholes.cooldown > 0) wormholes.cooldown--;
-
-    if(wormholes.relocateTimer > 1000){
-        relocateWormholes();
-        createExplosion(wormholes.entry.x, wormholes.entry.y, "#00d9ff", 15);
-        createExplosion(wormholes.exit.x, wormholes.exit.y, "#ff7700", 15);
-        showMessage("🌀 PORTALLAR YENİ KONUMA IŞINLANDI!");
-    }
-
     if(!snake.length || wormholes.cooldown > 0) return;
 
     const head = snake[0];
@@ -722,7 +726,6 @@ function drawWormholes(){
         ctx.save();
         ctx.translate(portal.x, portal.y);
 
-        // Safari Donanımlı Gradient Efekti
         const gradient = ctx.createRadialGradient(0, 0, 5, 0, 0, portal.r * 1.8);
         gradient.addColorStop(0, portal.color);
         gradient.addColorStop(0.6, portal.color + "88");
@@ -741,20 +744,12 @@ function drawWormholes(){
         ctx.arc(0, 0, portal.r, 0, Math.PI * 2);
         ctx.stroke();
 
-        ctx.rotate(-time * 2);
-        ctx.strokeStyle = "#ffffff";
-        ctx.lineWidth = 2;
-        ctx.setLineDash([6, 6]);
-        ctx.beginPath();
-        ctx.arc(0, 0, portal.r * 0.5, 0, Math.PI * 2);
-        ctx.stroke();
-
         ctx.restore();
     });
 }
 
 function spawnFood(){
-    if(foods.length >= 60) return;
+    if(foods.length >= 70) return;
     foods.push({
         x: 50 + Math.random() * (WORLD_WIDTH - 100),
         y: 50 + Math.random() * (WORLD_HEIGHT - 100),
@@ -786,6 +781,9 @@ function eatFood(val = 10){
     score += val * combo;
     snakeLength += Math.max(1, Math.floor(val / 5)); 
     combo = Math.min(10, combo + 1);
+
+    // Her yem toplamada daha fazla XP kazanımı
+    gainXP(12);
 
     createExplosion(snake[0].x, snake[0].y, "#00ffff", 6);
     sound(600 + combo * 30, .08, "sine", .04);
@@ -835,7 +833,6 @@ function updatePacmen(){
             
             p.chargeTimer++;
             
-            // Agresif Kırmızı Renk Güncellemesi
             if(p.chargeTimer > 180 && !p.isCharging){
                 p.warnTimer++;
                 p.color = (Math.floor(p.warnTimer / 6) % 2 === 0) ? "#ff0033" : "#ffe600";
@@ -892,7 +889,7 @@ function killPacman(index){
     if(!p) return;
 
     score += 150;
-    gainXP(30);
+    gainXP(45);
 
     for(let k = 0; k < 10; k++){
         foods.push({
@@ -1006,7 +1003,7 @@ function killMegaPacman(survived = false){
 
     if(survived){
         score += 1000;
-        gainXP(100);
+        gainXP(150);
         showMessage("🎉 MEGA PAC-MAN'DEN KAÇTIN! (+1000 SKOR)");
         
         for(let k = 0; k < 30; k++){
@@ -1025,13 +1022,69 @@ function killMegaPacman(survived = false){
     gameTime = 0;
 }
 
+function drawMinimap(){
+    mCtx.clearRect(0, 0, 90, 90);
+
+    const scaleX = 90 / WORLD_WIDTH;
+    const scaleY = 90 / WORLD_HEIGHT;
+
+    // Engeller
+    mCtx.fillStyle = "rgba(255,255,255,0.15)";
+    for(const obs of obstacles){
+        mCtx.beginPath();
+        mCtx.arc(obs.x * scaleX, obs.y * scaleY, 1.5, 0, Math.PI * 2);
+        mCtx.fill();
+    }
+
+    // Portallar
+    mCtx.fillStyle = "#00d9ff";
+    mCtx.beginPath();
+    mCtx.arc(wormholes.entry.x * scaleX, wormholes.entry.y * scaleY, 3, 0, Math.PI * 2);
+    mCtx.fill();
+
+    mCtx.fillStyle = "#ff7700";
+    mCtx.beginPath();
+    mCtx.arc(wormholes.exit.x * scaleX, wormholes.exit.y * scaleY, 3, 0, Math.PI * 2);
+    mCtx.fill();
+
+    // Düşmanlar & Pacman
+    mCtx.fillStyle = "#ff0055";
+    for(const p of pacmen){
+        mCtx.beginPath();
+        mCtx.arc(p.x * scaleX, p.y * scaleY, 2.5, 0, Math.PI * 2);
+        mCtx.fill();
+    }
+
+    for(const es of enemySnakes){
+        if(es.body.length > 0){
+            mCtx.beginPath();
+            mCtx.arc(es.body[0].x * scaleX, es.body[0].y * scaleY, 2, 0, Math.PI * 2);
+            mCtx.fill();
+        }
+    }
+
+    // Mega Pacman
+    if(megaPacman){
+        mCtx.fillStyle = "#ff00ff";
+        mCtx.beginPath();
+        mCtx.arc(megaPacman.x * scaleX, megaPacman.y * scaleY, 5, 0, Math.PI * 2);
+        mCtx.fill();
+    }
+
+    // Oyuncu Yılanı (Yeşil Parıltılı)
+    if(snake.length > 0){
+        mCtx.fillStyle = "#00ffcc";
+        mCtx.beginPath();
+        mCtx.arc(snake[0].x * scaleX, snake[0].y * scaleY, 3, 0, Math.PI * 2);
+        mCtx.fill();
+    }
+}
+
 function drawMegaPacman(){
     if(!megaPacman) return;
     const p = megaPacman;
 
     ctx.save();
-    
-    // Görkemli Safari Uyumlu Parıltı (Glow) Efekti
     ctx.shadowBlur = 30;
     ctx.shadowColor = p.color;
 
@@ -1053,20 +1106,12 @@ function drawMegaPacman(){
     ctx.lineTo(p.x, p.y);
     ctx.fill();
 
-    ctx.fillStyle = "#ffffff";
-    const eyeAngle = p.angle - Math.PI / 4;
-    ctx.beginPath();
-    ctx.arc(p.x + Math.cos(eyeAngle) * 30, p.y + Math.sin(eyeAngle) * 30, 8, 0, Math.PI * 2);
-    ctx.fill();
-
     ctx.restore();
 }
 
 function drawPacmen(){
     for(const p of pacmen){
         ctx.save();
-        
-        // Agresif Pac-Man Kırmızı Parıltı Efekti
         if(p.isCharging || p.color === "#ff0033"){
             ctx.shadowBlur = 20;
             ctx.shadowColor = "#ff0033";
@@ -1108,13 +1153,6 @@ function drawCentipedes(){
             ctx.beginPath();
             ctx.arc(b.x, b.y, 8, 0, Math.PI * 2);
             ctx.fill();
-
-            ctx.strokeStyle = "#00ff66";
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(b.x - 10, b.y);
-            ctx.lineTo(b.x + 10, b.y);
-            ctx.stroke();
         }
     }
 }
@@ -1195,7 +1233,6 @@ function drawSnake(){
     if(!snake.length) return;
 
     ctx.save();
-    // Yılan Işıltı Efekti (Safari Destekli Glow)
     ctx.shadowBlur = 12;
     ctx.shadowColor = "#00ffff";
 
@@ -1209,14 +1246,6 @@ function drawSnake(){
         ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
         ctx.fill();
     }
-
-    const head = snake[0];
-    const eyeOffset = 5;
-    ctx.fillStyle = "#02050a";
-    ctx.beginPath();
-    ctx.arc(head.x + Math.cos(angle - 0.5) * eyeOffset, head.y + Math.sin(angle - 0.5) * eyeOffset, 2.5, 0, Math.PI * 2);
-    ctx.arc(head.x + Math.cos(angle + 0.5) * eyeOffset, head.y + Math.sin(angle + 0.5) * eyeOffset, 2.5, 0, Math.PI * 2);
-    ctx.fill();
 
     ctx.restore();
 }
@@ -1251,7 +1280,7 @@ function gainXP(amount){
     if(xp >= nextLevelXp){
         xp -= nextLevelXp;
         level++;
-        nextLevelXp = Math.floor(nextLevelXp * 1.5); 
+        nextLevelXp = Math.floor(nextLevelXp * 1.35); 
         running = false;
         isPointerDown = false;
         document.getElementById("upgradeScreen").classList.remove("hidden");
@@ -1270,11 +1299,12 @@ function upgrade(type){
 
 function dash(){
     if(!running || dashCooldown > 0) return;
-    dashCooldown = 1000;
-    baseSpeed *= 1.8;
+    dashCooldown = 800;
+    baseSpeed *= 1.85;
+    sound(700, 0.1, "triangle", 0.05);
     setTimeout(() => {
-        if(running) baseSpeed /= 1.8;
-    }, 400);
+        if(running) baseSpeed /= 1.85;
+    }, 450);
     createExplosion(snake[0].x, snake[0].y, "#ffffff", 12);
 }
 
@@ -1340,7 +1370,7 @@ window.addEventListener("mouseup", pointerEnd);
 function startGame(){
     initAudio();
     
-    score = 0; level = 1; xp = 0; nextLevelXp = 100; combo = 1;
+    score = 0; level = 1; xp = 0; nextLevelXp = 80; combo = 1;
     snakeLength = 25; gameTime = 0;
     
     speedLevel = 1; magnetLevel = 0; shieldLevel = 1;
@@ -1420,6 +1450,7 @@ function loop(){
     }
 
     drawMap();
+    drawMinimap();
 }
 
 resize();
